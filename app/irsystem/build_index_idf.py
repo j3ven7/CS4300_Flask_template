@@ -1,6 +1,5 @@
 import csv
 import os, sys
-import googlemaps
 from nltk.tokenize import TreebankWordTokenizer
 import numpy as np
 import pickle
@@ -228,7 +227,7 @@ def make_pickle(file):
     pickled_data = [inv_idx_reviews,idf_reviews,doc_norms_reviews,inv_idx_types,idf_types,doc_norms_types,
                     review_to_places, places_to_details]
 
-    with open('pickled_data','wb') as f:
+    with open('pickled_data_v2','wb') as f:
         pickle.dump(pickled_data,f)
     
     

@@ -44,7 +44,7 @@ def search():
 		data = getLatLong(origin, destination)
 		# this is where the results get populated in
 		print("getting results")
-		with open("./app/irsystem/pickled_data","rb") as f:
+		with open("./app/irsystem/pickled_data_v2","rb") as f:
 			inv_idx_reviews,idf_reviews,doc_norms_reviews,inv_idx_types,idf_types,doc_norms_types, review_to_places, places_to_details = pickle.load(f)
 		
 		waypoints = rr.generateWaypoints(origin, destination)
