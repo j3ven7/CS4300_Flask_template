@@ -4,11 +4,11 @@ import googlemaps
 from nltk.tokenize import TreebankWordTokenizer
 from datetime import datetime
 import numpy as np
-from math import sin, cos, sqrt, atan2, radians
+from math import sin, cos, sqrt, atan2, radians, log10
 
 def computeDistanceLatLong(lat1, lon1, lat2, lon2):
 	"""
-	Computes distance between two locations using lat long 
+	Computes distance in km between two locations using lat long 
 
 	"""
 	# approximate radius of earth in km
@@ -30,7 +30,7 @@ def computeDistanceLatLong(lat1, lon1, lat2, lon2):
 	return distance
 def getDistanceToRoute(waypoints, lat, lng):
     """
-    Returns the distnace to the route for a given location (takes minimum of waypoints)
+    Returns the distnace to the route (METERS) for a given location (takes minimum of waypoints)
     NOTE: This doesn't make any live API calls, it just takes vectors as a relative measurement
     
     Args:
@@ -48,7 +48,7 @@ def getDistanceToRoute(waypoints, lat, lng):
         if distance < min_distance:
             min_distance = distance
 
-    return min_distance
+    return min_distance*1000
 
 # 1. Need to generate a route and waypoints based on start and end location
 # - User should also provide keywords 
@@ -94,7 +94,7 @@ def generateWaypoints(start_addr, end_addr):
 
         # Now we want to include as many waypoints as possible
         # Since computing distance to waypoints is super cheap
-        if total_distance - prev_distance > 5000: 
+        if True: 
             lat = entry["start_location"]["lat"]
             lng = entry["start_location"]["lng"]
             waypoints.append((lat, lng))
@@ -234,7 +234,7 @@ def computeScores(waypoints, index_search_rst_reviews, index_search_rst_types,
                 curr_distance      = getDistanceToRoute(waypoints, curr_lat, curr_lng)
 
                 # This stores the distances - higher score if you are closer
-                place_distances[curr_place] =  1 / curr_distance           
+                place_distances[curr_place] =  curr_distance           
     
     # Not enough types in the query 
     else:
@@ -261,7 +261,7 @@ def computeScores(waypoints, index_search_rst_reviews, index_search_rst_types,
                 curr_distance      = getDistanceToRoute(waypoints, curr_lat, curr_lng)
 
                 # This stores the distances - higher score if you are closer
-                place_distances[curr_place] =  1 / curr_distance
+                place_distances[curr_place] =  curr_distance
         
         for key in index_search_rst_reviews:
             curr_place         = review_to_places[key]
@@ -287,20 +287,19 @@ def computeScores(waypoints, index_search_rst_reviews, index_search_rst_types,
                 curr_distance      = getDistanceToRoute(waypoints, curr_lat, curr_lng)
 
                 # This stores the distances - higher score if you are closer
-                place_distances[curr_place] =  1 / curr_distance
+                place_distances[curr_place] =  curr_distance
         
     final_rst = {} # Mapping of place to final score -- including distance
     for k in place_scores_and_counts:
-        if 1/place_distances[k] > max_dist:
+        #eliminate results more than max distance allowed from route
+        if place_distances[k]/1609.344 > max_dist:
             continue
+        
+        # TODO: Include distance in our score -- place_distances[k] -- in some way
         final_rst[k] = {}
         score = place_scores_and_counts[k][0]
         count = place_scores_and_counts[k][1]
         
-        # TODO: Include distance in our score -- place_distances[k] -- in some way
-        
-        
-        final_rst[k]['score'] = (place_distances[k]*score / count)
         final_rst[k]['lat'] = places_to_details[k]['lat']
         final_rst[k]['long'] = places_to_details[k]['lng']
         final_rst[k]['address'] = places_to_details[k]['address']
@@ -309,6 +308,19 @@ def computeScores(waypoints, index_search_rst_reviews, index_search_rst_types,
             final_rst[k]['review'] = places_to_details[k]['reviews'][0]
         except:
             final_rst[k]['review'] = ['No reviews found.']
+
+        #low score results that are not "on the way" or  too close to origin/destination
+        origin = np.array(waypoints[0])
+        destination = np.array(waypoints[-1])
+        lat_lng = np.array((float(places_to_details[k]['lat']),float(places_to_details[k]['lng'])))
+        signs = np.sign(origin-destination) + np.sign(origin-lat_lng)
+        if (np.count_nonzero(signs) == 0 or computeDistanceLatLong(lat_lng[0],lat_lng[1],waypoints[0][0],waypoints[0][1]) < 16.0934
+or computeDistanceLatLong(lat_lng[0],lat_lng[1],waypoints[-1][0],waypoints[-1][1]) < 16.0934):
+            final_rst[k]['score'] = -1
+        else:
+            final_rst[k]['score'] = (log10(float(final_rst[k]['rating']))/3) + (score / count)
+
+
     
     return sorted(final_rst.items(), key=lambda kv: kv[1]['score'], reverse=True)
 
