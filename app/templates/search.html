@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="/static/bootstrap.min.css">
     <link rel="stylesheet" href="/static/main.css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
     <title>De-Tour Guide</title>
     <script src="/static/js/maps.js"></script>
     <script src="/static/js/results.js"></script>
@@ -14,24 +15,23 @@
 
 <body>
 
-    <!-- Replace action here with the path of the file that will be used to parse it -->
-    <form class="form-inline global-search">
-
-        <h1 style="font-size: 55px; font-family:Futura; color: #4285F4">
-            {{ name }}
+    <div class="background"></div>
+    <form class="form-inline global-search" id="submit-form">
+        <h1 style="font-size: 55px;">
+            <a href="./" id="link">{{ name }}</a>
         </h1>
         <br>
-        <h2 style="font-size: 20px; font-family:Futura">
+        <h2 style="font-size: 20px;">
             Find ideal stops along your road trip route!
         </h2>
         <br><br><br>
 
         <div class="form-group">
-            <input type="text" name="origin" class="form-control input" placeholder="Origin" required>
+            <input id="origin-input" type="text" name="origin" class="form-control input" placeholder="Origin" required>
         </div>
         <br>
         <div class="form-group">
-            <input type="text" name="dest" class="form-control input" placeholder="Destination" required>
+            <input id="destination-input" type="text" name="dest" class="form-control input" placeholder="Destination" required>
         </div>
         <br>
         <h2> Please Describe What You're Looking For </h2>
@@ -39,14 +39,14 @@
         <h4> (Separate each aspect with a comma) </h4>
         <br>
         <div class="form-group">
-            <input type="text" name="description" maxlength="200" class="form_control input"
+            <input id="description-input" type="text" name="description" maxlength="200" class="form_control input"
                 placeholder="ex. 'Family friendly, delicious seafood, zoo with elephants'" style="margin-top: 10px"
                 size="60" required>
         </div>
         <br>
         <h5>Approximately how many miles are you willing to deviate from the path?</h5>
         <br>
-        <select name="distance">
+        <select id="distance-input" name="distance">
             <option value="3000">Over 100</option>
             <option value="100">100</option>
             <option value="75">75</option>
@@ -72,6 +72,15 @@
             )
         </script>
         {% endfor %}
+        {% for a in addresses %}
+        <script>
+            coords.push('{{ a }}')
+        </script>
+        {% endfor %}
+        <script>
+            queries = '{{ queries }}'
+            dist = '{{ dist }}'
+        </script>
         <script async defer
             src="https://maps.googleapis.com/maps/api/js?key={{api_key}}&callback=initMap">
         </script>

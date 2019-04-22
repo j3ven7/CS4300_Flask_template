@@ -43,7 +43,7 @@ def getLatLong(origin, destination):
 	origin_coords = (origin_gc['lat'], origin_gc['lng'])
 	dest_gc = client.geocode(destination)[0]['geometry']['location']
 	dest_coords = (dest_gc['lat'], dest_gc['lng'])
-	return [origin_coords, dest_coords]
+	return [origin_coords, dest_coords], [client.geocode(origin)[0]['formatted_address'], client.geocode(destination)[0]['formatted_address']]
 
 @irsystem.route('/', methods=['GET'])
 def search():
@@ -63,9 +63,11 @@ def search():
 		data = []
 		output_message = ''
 		results = []
+		adr = []
 	else:
-		output_message = "Your search: " + origin + " to " + destination
-		data = getLatLong(origin, destination)
+		data, addresses = getLatLong(origin, destination)
+		adr = [x.replace(', USA', '') for x in addresses]
+		output_message = "Your search: " + adr[0] + " to " + adr[1]
 		# this is where the results get populated in
 		print("getting results")
 		with open("./app/irsystem/pickled_data_v2","rb") as f:
@@ -82,7 +84,4 @@ def search():
 		print(results)
 	
 
-	return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=data, results=results, api_key=API_KEY)
-
-
-
+	return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, queries=request.args.get('description'), dist=request.args.get('distance'), data=data, addresses=adr, results=results, api_key=API_KEY)
