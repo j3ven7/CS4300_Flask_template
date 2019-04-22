@@ -7,6 +7,7 @@ var origin;
 var destination;
 var initialDistance;
 var initialTime;
+var wypts = [];
 var queries;
 var dist;
 
@@ -19,7 +20,7 @@ function initMap() {
   destination = coords[1];
   origin_formatted = coords[2];
   dest_formatted = coords[3];
-  
+
   document.getElementById("origin-input").value = origin_formatted;
   document.getElementById("destination-input").value = dest_formatted;
   document.getElementById("description-input").value = queries;
@@ -67,19 +68,20 @@ function updateMap(lat = null, long = null) {
     $("#detail" + activeRow).css("display", "none");
     activeRow = "";
   } else {
-    wypts = [{
+    wypts.push({
       location: {
         lat: lat,
         lng: long
       },
       stopover: true
-    }]
+    });
   }
   var mapElement = document.getElementById('map');
   directionsService.route({
     origin: origin,
     destination: destination,
     waypoints: wypts,
+    optimizeWaypoints: true,
     travelMode: "DRIVING"
   }, function (response, status) {
     if (status == 'OK') {
