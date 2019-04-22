@@ -13,7 +13,7 @@ def trimReviews(initial_reviews):
     for entry in reviews:
         if entry in unwanted_chars:
             reviews.remove(entry)
-    return reviews
+    return [r.lower() for r in reviews]
 
 def trimTypes(initial_types):
     initial_types = initial_types.split(",")
@@ -139,7 +139,7 @@ def build_inverted_index(reviews, tokenizer=TreebankWordTokenizer()):
     return inverted_index
 
 
-def compute_idf(inv_idx, n_docs, min_df=5, max_df_ratio=0.8):
+def compute_idf(inv_idx, n_docs, min_df=1, max_df_ratio=0.8):
     """ Compute term IDF values from the inverted index.
     Words that are too frequent or too infrequent get pruned.
     
