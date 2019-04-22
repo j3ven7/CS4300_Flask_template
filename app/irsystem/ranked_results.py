@@ -5,7 +5,124 @@ from nltk.tokenize import TreebankWordTokenizer
 from datetime import datetime
 import numpy as np
 from math import sin, cos, sqrt, atan2, radians, log10
+import scipy.spatial.distance as s
 
+def queryToVec(query, model):
+    """
+    Takes a string query and converts it to a word embedding by taking the average of the words in the query
+    
+    Args:
+        query    - array representation of string that we are using for search
+        model    - dictionary mapping words to embeddings
+    
+    Returns:
+        Array (embedding) representation of the query
+    """
+    length = 0
+    
+    # Just a place holder so we know the length of the embeddings
+    rst = 0
+    
+    for word in query:
+        try:
+            rst += model[word.lower()]
+            length += 1
+        except:
+            pass
+    
+    return (rst / length) 
+
+
+def computeTopTypes(query, all_types, model):
+    """
+    Takes a query and a string of types and determines its score
+    
+    Args:
+        query        - array representation of string that we are using for search
+        all_types    - set of all types contained by our places
+        model        - dictionary mapping words to embeddings
+        
+    Returns:
+        Ranked types by our query
+    """
+    query_vec = queryToVec(query, model)
+    rst = {}
+    # Iterating through our types
+    for t in all_types:
+        try:
+            score = s.cosine(query_vec, model[t.lower()])
+            rst[t] = score
+        # But types could be "point_of_interest"
+        except:
+            try:
+                tmp = t.split("_")
+                tmp_vec = queryToVec(tmp, model)
+                score = s.cosine(query_vec, tmp_vec)
+                rst[t] = score
+            except:
+                print(t, " was not in the dictionary")
+        
+    return sorted(rst.items(), key=lambda item : item[1], reverse=False)
+    
+def computeScore(query, types, model):
+    """
+    Takes a query and a string of types and determines its score
+    
+    Args:
+        query    - array representation of string that we are using for search
+        types    - string like 'museums, point_of_interest, florist' 
+        model    - dictionary mapping words to embeddings
+    
+    Returns:
+        Tuple of the score for the place and the associated type
+    """
+    final_score = 0
+    
+    # First we convert our query to a vector
+    query_vec = queryToVec(query, model)
+    
+    # Now we need to convert our types
+    types = types.split(",")
+    length = len(types)
+    
+    # Iterating through our types
+    for t in types:
+        try:
+            score = s.cosine(query_vec, model[t.lower()])
+            final_score += score
+        # But types could be "point_of_interest"
+        except:
+            try:
+                tmp = t.split("_")
+                tmp_vec = queryToVec(tmp, model)
+                score = s.cosine(query_vec, tmp_vec)
+                final_score += score
+            except:
+                print(t, len(t), " was not in the dictionary")
+                
+    return (final_score / length)
+
+def getTopPlacesTypes(places_to_details, query, model):
+    """
+    Gets top places based on embeddings related to type
+    
+    Args:
+        places_to_details    - dictionary of places to their details
+        query                - array representation of string that we are using for search
+        model                - dictionary mapping words to embeddings
+    
+    Returns
+        The top places for our search
+    """
+    rst = {}
+    
+    for place in places_to_details:        
+        types = places_to_details[place]['types']
+        score = computeScore(query, types, model)
+        rst[place] = score
+
+    
+    return sorted(rst.items(), key=lambda item : item[1], reverse=False)
 def computeDistanceLatLong(lat1, lon1, lat2, lon2):
 	"""
 	Computes distance in km between two locations using lat long 
@@ -178,7 +295,7 @@ def index_search(query, index, idf, doc_norms, tokenizer=TreebankWordTokenizer()
     
     return rst
 
-def computeScores(waypoints, index_search_rst_reviews, index_search_rst_types, 
+def computeScores(waypoints, query, model, index_search_rst_reviews, index_search_rst_types, 
                   review_to_places, places_to_details, max_dist):
     """
     Takes scores that we get from our index search against types and reviews and computes
@@ -186,21 +303,23 @@ def computeScores(waypoints, index_search_rst_reviews, index_search_rst_types,
     
     Args:
         waypoints                 - a list of waypoints along the route
+        query                     - array representation of string that we are using for search
+        model                     - dictionary mapping words to embeddings
         index_search_rst_reviews  - dictionary of review id to tf-idf score of that review against our query
         index_search_rst_types    - dictionary of review id to tf-idf score of types for the place against our query
         review_to_places          - dictionary of review id to name of the corresponding place
         places_to_details         - dictionary of place name to details about that place (i.e. lat/lng, reviews, rating, etc.)
-        
+        max_dist                  - int max distance willing to deviate from the
     Return:
         Dictionary mapping a place to its score 
     """
-    place_distances    = {} # Dictionary mapping place names to the distance to the path
     seen_review_ids    = set() # Set of each seen id so far
+    overlap_ids = set() 
+
     
     # Remember to take EACH review into account
-    place_scores_and_counts = {} # Dictionary mapping place names to a tuple of scores and counts for normalization
+    place_data = {} # Dictionary mapping place names to a "score" and "count" (for normalization) and "distance" 
     
-    overlap_ids = set() 
     # NOTE: Here I am just trying to speed things up by looking for overlap 
     # between types and reviews and our query - if the user
     # searches for museum it will show up in types and reviews
@@ -214,91 +333,77 @@ def computeScores(waypoints, index_search_rst_reviews, index_search_rst_types,
     if len(overlap_ids) > 20:
         for key in overlap_ids:
             curr_place         = review_to_places[key]
-            # Here I am just using some arbitrary multiplier to count the reviews more since
-            # we know they all have a type included in the query
+            # Here I am just using some arbitrary multiplier to count the reviews more heavily*
             curr_score         = ((index_search_rst_reviews[key]*2) + index_search_rst_types[key]) / 2
         
-            # This code is for when we have no type overlap but we can omit this for now
-            # This is the first review associated with the place
-            if curr_place not in place_scores_and_counts:
-                place_scores_and_counts[curr_place] = (curr_score, 1)
-            else:
-                score = place_scores_and_counts[curr_place][0]
-                count = place_scores_and_counts[curr_place][1]
-                place_scores_and_counts[curr_place] = (score + curr_score, count + 1)
+            # Each place can have multiple reviews:
 
-            if curr_place not in place_distances:
+            # 1. We have not come across a review from the same place 
+            if curr_place not in place_data:
+                place_data[curr_place] = {"score" : curr_score, "count" : 1, "distance": None}
+            # 2. We have already come across a review from the same place
+            else:
+                # Need to figure out what our score was in order to change it
+                score = place_data[curr_place]["score"]
+                count = place_data[curr_place]["count"]
+                place_data[curr_place]["score"] = score + curr_score
+                place_data[curr_place]["count"] = count + 1
+
+            # Computing distance information
+            if place_data[curr_place]["distance"] == None:
                 curr_place_details = places_to_details[curr_place]
                 curr_lat           = float(curr_place_details['lat'])
                 curr_lng           = float(curr_place_details['lng'])
                 curr_distance      = getDistanceToRoute(waypoints, curr_lat, curr_lng)
 
                 # This stores the distances - higher score if you are closer
-                place_distances[curr_place] =  curr_distance           
+                place_data[curr_place]["distance"] =  curr_distance           
     
-    # Not enough types in the query 
+    # No entries in the query that were included in our types
     else:
+        # Takes all unique results - some are words that appeared in a review, others are types, some are both
+        all_keys = list(set(index_search_rst_reviews.keys() + index_search_rst_types.keys()))
         # NOTE: We can include a distance threshold here and throw places out based on distance
-        for key in index_search_rst_reviews:
+        for key in all_keys:
             curr_place         = review_to_places[key]
             curr_score         = index_search_rst_reviews[key]
 
-            # This is the first review associated with the place
-            if curr_place not in place_scores_and_counts:
-                place_scores_and_counts[curr_place] = (curr_score, 1)
+            if curr_place not in place_data:
+                place_data[curr_place] = {"score" : curr_score, "count" : 1, "distance": None}
             else:
-                score = place_scores_and_counts[curr_place][0]
-                count = place_scores_and_counts[curr_place][1]
-                place_scores_and_counts[curr_place] = (score + curr_score, count + 1)
+                score = place_data[curr_place]["score"]
+                count = place_data[curr_place]["count"]
+                place_data[curr_place]["score"] = score + curr_score
+                place_data[curr_place]["count"] = count + 1
 
             # Ensure we don't double count when checking types
             seen_review_ids.add(key)
 
-            if curr_place not in place_distances:
+            if place_data[curr_place]["distance"] == None:
                 curr_place_details = places_to_details[curr_place]
                 curr_lat           = float(curr_place_details['lat'])
                 curr_lng           = float(curr_place_details['lng'])
                 curr_distance      = getDistanceToRoute(waypoints, curr_lat, curr_lng)
 
                 # This stores the distances - higher score if you are closer
-                place_distances[curr_place] =  curr_distance
-        
-        for key in index_search_rst_reviews:
-            curr_place         = review_to_places[key]
-            curr_score         = index_search_rst_reviews[key] 
-
-            # This is the first review associated with the place
-            if curr_place not in place_scores_and_counts:
-                place_scores_and_counts[curr_place] = (curr_score, 1)
-            else:
-                score = place_scores_and_counts[curr_place][0]
-                count = place_scores_and_counts[curr_place][1]
-                # This prevents double counting of reviews and types
-                if key not in seen_review_ids:
-                    place_scores_and_counts[curr_place] = (score + curr_score, count + 1)
-                else:
-                    place_scores_and_counts[curr_place] = (score + curr_score, count)
-
-
-            if curr_place not in place_distances:
-                curr_place_details = places_to_details[curr_place]
-                curr_lat           = float(curr_place_details['lat'])
-                curr_lng           = float(curr_place_details['lng'])
-                curr_distance      = getDistanceToRoute(waypoints, curr_lat, curr_lng)
-
-                # This stores the distances - higher score if you are closer
-                place_distances[curr_place] =  curr_distance
-        
+                place_data[curr_place]["distance"] =  curr_distance
+                
+    
     final_rst = {} # Mapping of place to final score -- including distance
-    for k in place_scores_and_counts:
+    for k in place_data.keys():
         #eliminate results more than max distance allowed from route
-        if place_distances[k]/1609.344 > max_dist:
+        if place_data[k]["distance"]/1609.344 > max_dist:
             continue
         
+        # Compute score wrt embeddings
+        types = places_to_details[k]["types"]
+        types_score  = computeScore(query, types, model)
+        print("types_score: ", types_score)
+
         # TODO: Include distance in our score -- place_distances[k] -- in some way
         final_rst[k] = {}
-        score = place_scores_and_counts[k][0]
-        count = place_scores_and_counts[k][1]
+        score = place_data[k]["score"]
+        count = place_data[k]["count"]
         
         final_rst[k]['lat'] = places_to_details[k]['lat']
         final_rst[k]['long'] = places_to_details[k]['lng']
@@ -318,10 +423,9 @@ def computeScores(waypoints, index_search_rst_reviews, index_search_rst_types,
 or computeDistanceLatLong(lat_lng[0],lat_lng[1],waypoints[-1][0],waypoints[-1][1]) < 16.0934):
             final_rst[k]['score'] = -1
         else:
-            final_rst[k]['score'] = (log10(float(final_rst[k]['rating']))/3) + (score / count)
+            final_rst[k]['score'] = (log10(float(final_rst[k]['rating']))/3) + (score / count) + (1/(types_score + .001))
 
 
-    
     return sorted(final_rst.items(), key=lambda kv: kv[1]['score'], reverse=True)
 
     

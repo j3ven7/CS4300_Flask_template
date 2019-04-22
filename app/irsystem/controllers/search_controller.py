@@ -14,6 +14,30 @@ net_id = "Josh Even (jre83), Josh Sones (js2572), Adomas Hassan (ah667), Jesse S
 API_KEY = os.environ["GOOGLE_KEY"]
 client = googlemaps.Client(API_KEY)
 
+# Josh TODO: Move this into its own file
+def loadGloveModel(gloveFile):
+    """
+    Loads in gloveFile which contains word vectors 
+    Returns -- dictionary with word keys and tuple values
+            Ex: model["Word"] = ([x1,x1,...,xn], magnitude)
+            Where the magnitude is the norm of the vector
+    """
+    
+    print("Loading Glove Model")
+    f = open(gloveFile,'r')
+    model = {}
+    for line in f:
+        splitLine = line.split()
+        word = splitLine[0]
+        embedding = np.array([float(val) for val in splitLine[1:]]) if len(splitLine) <= 100 else np.array([float(splitLine[i]) for i in range(1, 200)])
+        #magnitude = np.linalg.norm(embedding)
+        model[word] = embedding #, magnitude)
+    return model
+
+print("here")
+big_model   = loadGloveModel('GloVe-1.2/vectors.txt')
+print(len(big_model))
+
 def getLatLong(origin, destination):
 	origin_gc = client.geocode(origin)[0]['geometry']['location']
 	origin_coords = (origin_gc['lat'], origin_gc['lng'])
@@ -49,11 +73,11 @@ def search():
 		
 		waypoints = rr.generateWaypoints(origin, destination)
 		results = []
-		
 		for query in queries:
+			print("Query: ", query)
 			index_search_rst_reviews = rr.index_search(query, inv_idx_reviews, idf_reviews, doc_norms_reviews)
 			index_search_rst_types = rr.index_search(query, inv_idx_types, idf_types, doc_norms_types)
-			ranked_rst = rr.computeScores(waypoints, index_search_rst_reviews, index_search_rst_types, review_to_places, places_to_details, max_dist=max_dist)
+			ranked_rst = rr.computeScores(waypoints, query.split(" "), big_model, index_search_rst_reviews, index_search_rst_types, review_to_places, places_to_details, max_dist)
 			results.append(ranked_rst[:10])
 		print(results)
 	
