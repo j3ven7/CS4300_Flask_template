@@ -398,7 +398,7 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
         # Compute score wrt embeddings
         types = places_to_details[k]["types"]
         types_score  = computeScore(query, types, model)
-        print("types_score: ", types_score)
+        #print("types_score: ", types_score)
 
         # TODO: Include distance in our score -- place_distances[k] -- in some way
         final_rst[k] = {}
@@ -409,10 +409,7 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
         final_rst[k]['long'] = places_to_details[k]['lng']
         final_rst[k]['address'] = places_to_details[k]['address']
         final_rst[k]['rating'] = places_to_details[k]['ratings']
-        try:
-            final_rst[k]['review'] = places_to_details[k]['reviews'][0]
-        except:
-            final_rst[k]['review'] = ['No reviews found.']
+        final_rst[k]['review'] = places_to_details[k]['pos_review']
 
         #low score results that are not "on the way" or  too close to origin/destination
         origin = np.array(waypoints[0])
@@ -423,8 +420,11 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
 or computeDistanceLatLong(lat_lng[0],lat_lng[1],waypoints[-1][0],waypoints[-1][1]) < 16.0934):
             final_rst[k]['score'] = -1
         else:
-            final_rst[k]['score'] = (log10(float(final_rst[k]['rating']))/3) + (score / count) + (.1/(types_score + .001))
-
+            try:
+                rating_score = log10(float(final_rst[k]['rating']))/3
+            except:
+                rating_score = 0
+            final_rst[k]['score'] = (rating_score + (score / count) + (.1/(types_score + .001)))
 
     return sorted(final_rst.items(), key=lambda kv: kv[1]['score'], reverse=True)
 
