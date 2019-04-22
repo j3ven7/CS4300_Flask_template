@@ -81,7 +81,6 @@ def search():
 			index_search_rst_types = rr.index_search(query, inv_idx_types, idf_types, doc_norms_types)
 			ranked_rst = rr.computeScores(waypoints, query.split(" "), big_model, index_search_rst_reviews, index_search_rst_types, review_to_places, places_to_details, max_dist)
 			results.append(ranked_rst[:10])
-		print(results)
 	
 
 	return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, queries=request.args.get('description'), dist=request.args.get('distance'), data=data, addresses=adr, results=results, api_key=API_KEY)
