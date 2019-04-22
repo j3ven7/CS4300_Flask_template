@@ -3,6 +3,8 @@ import os, sys
 from nltk.tokenize import TreebankWordTokenizer
 import numpy as np
 import pickle
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
 
 def trimReviews(initial_reviews):
     initial_reviews = initial_reviews.split("\"")
@@ -22,6 +24,18 @@ def trimTypes(initial_types):
     
     return types
 
+def mostPositive(trimmed_reviews):
+    """Using sentiment analysis, return the most positive review."""
+    high_score = -2
+    pos_review = "No reviews found."
+    analyzer = SentimentIntensityAnalyzer()
+    for review in trimmed_reviews:
+        score = analyzer.polarity_scores(review)['compound']
+        if score > high_score:
+            high_score = score
+            pos_review = review
+    return pos_review
+    
 def formatData(places):
 
     all_reviews       = [] # List of string representations of all reviews
@@ -53,6 +67,7 @@ def formatData(places):
         
         place['reviews'] = curr_reviews
         place['types']   = curr_types
+        place['pos_review'] = mostPositive(curr_reviews)
         
         places_to_details[curr_name] = place
         
