@@ -8,7 +8,7 @@ function toggle(element) {
         activeRow = element;
         $("#result" + activeRow).addClass("active");
         $("#detail" + activeRow).css("display", "block");
-        document.getElementById("result" + activeRow).scrollIntoView();
+        // document.getElementById("result" + activeRow).scrollIntoView();
 
     } else {
         activeRow = "";
