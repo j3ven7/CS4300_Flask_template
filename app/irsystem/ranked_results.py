@@ -362,7 +362,7 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
     # No entries in the query that were included in our types
     else:
         # Takes all unique results - some are words that appeared in a review, others are types, some are both
-        all_keys = list(set(index_search_rst_reviews.keys() + index_search_rst_types.keys()))
+        all_keys = list(set(list(index_search_rst_reviews.keys()) + list(index_search_rst_types.keys())))
         # NOTE: We can include a distance threshold here and throw places out based on distance
         for key in all_keys:
             curr_place         = review_to_places[key]
@@ -423,7 +423,7 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
 or computeDistanceLatLong(lat_lng[0],lat_lng[1],waypoints[-1][0],waypoints[-1][1]) < 16.0934):
             final_rst[k]['score'] = -1
         else:
-            final_rst[k]['score'] = (log10(float(final_rst[k]['rating']))/3) + (score / count) + (1/(types_score + .001))
+            final_rst[k]['score'] = (log10(float(final_rst[k]['rating']))/3) + (score / count) + (.1/(types_score + .001))
 
 
     return sorted(final_rst.items(), key=lambda kv: kv[1]['score'], reverse=True)
