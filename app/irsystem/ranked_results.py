@@ -30,7 +30,7 @@ def queryToVec(query, model):
         except:
             pass
     
-    return (rst / length) 
+    return (0 if length == 0 else rst / length) 
 
 
 def computeTopTypes(query, all_types, model):

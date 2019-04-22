@@ -16,6 +16,7 @@
 <body>
 
     <div class="background"></div>
+    <div id="confirmation">GOOD work</div>
     <form class="form-inline global-search" id="submit-form">
         <h1 style="font-size: 55px;">
             <a href="./" id="link">{{ name }}</a>
@@ -89,13 +90,17 @@
     <div class="container">
         <div id="map"></div>
         <div id="results-container">
+        <div id="results-tabs">
+
+        </div>
             <table id="results">
                 {% for (name, details) in results[0] %}
                 <tr onclick="updateMap(parseFloat('{{ details.lat }}'), parseFloat('{{ details.long }}')); 
                             toggle('{{loop.index0}}')" class="result" id="result{{ loop.index0 }}">
                     <td>
                         <div class="result-name">{{ name }}</div>
-                        <div class="detail" id="detail{{loop.index0}}">
+                        <img class="add-toggle " id="toggle{{ loop.index0 }}" src="static/images/plus.png" onclick="event.stopPropagation(); toggleMyRoute('{{ loop.index0 }}')">
+                        <div class="detail" id="detail{{ loop.index0 }}">
                             <div>
                                 {{ details.address }}
                             </div>
