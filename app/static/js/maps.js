@@ -7,6 +7,7 @@ var origin;
 var destination;
 var initialDistance;
 var initialTime;
+var wypts = [];
 
 function initMap() {
   var bounds = new google.maps.LatLngBounds();
@@ -57,19 +58,20 @@ function updateMap(lat = null, long = null) {
     $("#detail" + activeRow).css("display", "none");
     activeRow = "";
   } else {
-    wypts = [{
+    wypts.push({
       location: {
         lat: lat,
         lng: long
       },
       stopover: true
-    }]
+    });
   }
   var mapElement = document.getElementById('map');
   directionsService.route({
     origin: origin,
     destination: destination,
     waypoints: wypts,
+    optimizeWaypoints: true,
     travelMode: "DRIVING"
   }, function (response, status) {
     if (status == 'OK') {
