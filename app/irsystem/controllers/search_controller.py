@@ -50,7 +50,7 @@ def search():
 	origin = request.args.get('origin')
 	destination = request.args.get('dest')
 	try:
-		queries = request.args.get('description').split(',')
+		queries = [r.lower() for r in request.args.get('description').split(',')]
 	except:
 		queries = [""]
 	try:
