@@ -36,6 +36,18 @@ html, body {
     }
 }
 
+#confirmation {
+    position: fixed;
+    width: 100%;
+    height: 35px;
+    line-height: 35px;
+    margin: 0 auto;
+    background-color: #7fb800;
+    text-align: center;
+    display: none;
+    color: white;
+}
+
 .background {
     position: fixed;
     height: 100%;

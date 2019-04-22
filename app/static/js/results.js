@@ -25,9 +25,11 @@ function toggleMyRoute(element) {
 
     // Plus sign active
     if ($("#toggle" + element).attr("src") == "static/images/plus.png") {
-        $("#toggle" + element).attr("src", "static/images/minus.png")
+        $("#toggle" + element).attr("src", "static/images/minus.png");
+        $("#confirmation").css("opacity", "1");
+        $("#confirmation").slideDown("fast").delay(2500).slideUp('fast');
         // add waypoint
     } else {
-        $("#toggle" + element).attr("src", "static/images/plus.png")
+        $("#toggle" + element).attr("src", "static/images/plus.png");
     }
 }
