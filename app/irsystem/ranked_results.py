@@ -316,6 +316,7 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
     seen_review_ids    = set() # Set of each seen id so far
     overlap_ids = set() 
 
+    places = places_to_details.keys()
     
     # Remember to take EACH review into account
     place_data = {} # Dictionary mapping place names to a "score" and "count" (for normalization) and "distance" 
@@ -363,6 +364,7 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
     else:
         # Takes all unique results - some are words that appeared in a review, others are types, some are both
         all_keys = list(set(list(index_search_rst_reviews.keys()) + list(index_search_rst_types.keys())))
+        print("all_keys: ", all_keys)
         # NOTE: We can include a distance threshold here and throw places out based on distance
         for key in all_keys:
             curr_place         = review_to_places[key]
@@ -390,20 +392,25 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
                 
     
     final_rst = {} # Mapping of place to final score -- including distance
-    for k in place_data.keys():
+    print("places length: ", len(places))
+    for k in places: # Keys are the places 
         #eliminate results more than max distance allowed from route
-        if place_data[k]["distance"]/1609.344 > max_dist:
-            continue
+        # if place_data[k]["distance"]/1609.344 > max_dist:
+        #     continue
         
         # Compute score wrt embeddings
         types = places_to_details[k]["types"]
         types_score  = computeScore(query, types, model)
-        #print("types_score: ", types_score)
+        print("types_score: ", types_score)
 
         # TODO: Include distance in our score -- place_distances[k] -- in some way
         final_rst[k] = {}
-        score = place_data[k]["score"]
-        count = place_data[k]["count"]
+        if k in place_data:
+            score = place_data[k]["score"]
+            count = place_data[k]["count"]
+        else:
+            score = 0
+            count = 1
         
         final_rst[k]['lat'] = places_to_details[k]['lat']
         final_rst[k]['long'] = places_to_details[k]['lng']
