@@ -45,7 +45,15 @@ function toggleMyRoute(element, lat, long) {
         $("#toggle" + element).attr("src", "static/images/minus.png");
         $("#confirmation").css("opacity", "1");
         $("#confirmation").slideDown("fast").delay(2500).slideUp('fast');
-        // add waypoint
+        console.log("pushed")
+        wypts.push({
+            location: {
+              lat: lat,
+              lng: long
+            },
+            stopover: true
+        });
+
     } else {
         $("#toggle" + element).attr("src", "static/images/plus.png")
         //wypts.push({ location: { lat: lat, lng: long }, stopover: true });
@@ -56,5 +64,14 @@ function toggleMyRoute(element, lat, long) {
             index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
         }
 
+    }
+    populateMyRoute();
+}
+
+function populateMyRoute() {
+    $("#myroute tbody").empty()
+    for (w in wypts) {
+        console.log("SDSD")
+        $("#myroute tbody").append("<tr><td>" + "Hello" + "</td></tr>")
     }
 }
