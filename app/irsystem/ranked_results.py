@@ -363,11 +363,12 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
     # No entries in the query that were included in our types
     else:
         # Takes all unique results - some are words that appeared in a review, others are types, some are both
-        all_keys = list(set(list(index_search_rst_reviews.keys()) + list(index_search_rst_types.keys())))
-        print("all_keys: ", all_keys)
+        # all_keys = list(set(list(index_search_rst_reviews.keys()) + list(index_search_rst_types.keys())))
+        # print("all_keys: ", all_keys)
         # NOTE: We can include a distance threshold here and throw places out based on distance
-        for key in all_keys:
+        for key in index_search_rst_reviews.keys():
             curr_place         = review_to_places[key]
+
             curr_score         = index_search_rst_reviews[key]
 
             if curr_place not in place_data:
@@ -393,6 +394,9 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
     
     final_rst = {} # Mapping of place to final score -- including distance
     print("places length: ", len(places))
+    # Right now we just iterate over every place, but I think it would make more sense
+    # to look at relevant ones? So check how many we get in place_data and if it has more than say
+    # 30 keys we can just do cosine stuff on those? In any case it's still pretty fast
     for k in places: # Keys are the places 
         #eliminate results more than max distance allowed from route
         # if place_data[k]["distance"]/1609.344 > max_dist:
@@ -403,8 +407,10 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
         types_score  = computeScore(query, types, model)
         print("types_score: ", types_score)
 
-        # TODO: Include distance in our score -- place_distances[k] -- in some way
         final_rst[k] = {}
+        
+        # score is our tf-idf score -- if no reviews match the query
+        # this score should be zero (set count to 1 to avoid div by zero error) 
         if k in place_data:
             score = place_data[k]["score"]
             count = place_data[k]["count"]
