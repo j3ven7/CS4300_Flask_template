@@ -1,7 +1,3 @@
-function findLoc(place, lt, lng) {
-    return place.location.lat == lt && place.location.lng == lng;
-}
-
 var activeRow = "";
 
 function toggle(element, lat, long) {
@@ -58,5 +54,14 @@ function toggleMyRoute(element, lat, long) {
         //     index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
         // }
         updateMap(lat, long);
+    }
+    populateMyRoute();
+}
+
+function populateMyRoute() {
+    $("#myroute tbody").empty()
+    for (w in wypts) {
+        console.log("SDSD")
+        $("#myroute tbody").append("<tr><td>" + "Hello" + "</td></tr>")
     }
 }

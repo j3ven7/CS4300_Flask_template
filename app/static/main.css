@@ -46,6 +46,7 @@ html, body {
     text-align: center;
     display: none;
     color: white;
+    z-index: 999;
 }
 
 .background {
@@ -141,6 +142,28 @@ html, body {
 
 .detail {
     display: none;
+}
+
+#myroute_container {
+    width: 100%;
+    height: 200px;
+    margin: 20px;
+    position: relative;
+    text-align: center;
+}
+
+#myroute {
+    width: 30%;
+    position: absolute;
+    left: 35%;
+    border-collapse: separate; 
+    border-spacing: 2px;
+}
+
+#myroute tr {
+    background-color: lightgray;
+    padding: 9px 17px;
+    box-shadow: 0px 0px 9px 0px rgba(0,0,0,0.1);
 }
 
 #reset {
