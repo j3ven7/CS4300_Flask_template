@@ -16,8 +16,9 @@ function toggle(element, lat, long) {
     var index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
     if (activeRow != element) {
         if (activeRow != "") {
-            if (index > -1) {
+            while (index > -1) {
                 wypts.splice(index, 1);
+                index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
             }
         }
         activeRow = element;
@@ -29,8 +30,9 @@ function toggle(element, lat, long) {
         // No new active element - the element clicked is the currently active element
     } else {
         activeRow = "";
-        if (index > -1) {
+        while (index > -1) {
             wypts.splice(index, 1);
+            index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
         }
     }
 }
@@ -49,8 +51,9 @@ function toggleMyRoute(element, lat, long) {
         //wypts.push({ location: { lat: lat, lng: long }, stopover: true });
         var index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
         console.log("TOGGLEMYROUTE: " + index);
-        if (index > -1) {
+        while (index > -1) {
             wypts.splice(index, 1);
+            index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
         }
 
     }
