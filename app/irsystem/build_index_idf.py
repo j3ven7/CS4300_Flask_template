@@ -121,7 +121,9 @@ def build_inverted_index(reviews, tokenizer=TreebankWordTokenizer()):
         tokens = tokenizer.tokenize(review)
         tmp_d = {}
         # Iterate over all tokens in the document
+        punc = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
         for token in tokens:
+            token = ''.join(c for c in token if c not in punc)
             # If the token has never been seen before make an entry
             if token not in tmp_d:
                 tmp_d[token] = 0
