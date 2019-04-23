@@ -47,15 +47,16 @@ function toggleMyRoute(element, lat, long) {
         $("#confirmation").css("opacity", "1");
         $("#confirmation").slideDown("fast").delay(2500).slideUp('fast');
         // add waypoint
+        wypts.push({ location: { lat: lat, lng: long }, stopover: true });
     } else {
         $("#toggle" + element).attr("src", "static/images/plus.png")
         //wypts.push({ location: { lat: lat, lng: long }, stopover: true });
-        var index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
-        console.log("TOGGLEMYROUTE: " + index);
-        while (index > -1) {
-            wypts.splice(index, 1);
-            index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
-        }
-
+        // var index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
+        // console.log("TOGGLEMYROUTE: " + index);
+        // while (index > -1) {
+        //     wypts.splice(index, 1);
+        //     index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
+        // }
+        updateMap(lat, long);
     }
 }

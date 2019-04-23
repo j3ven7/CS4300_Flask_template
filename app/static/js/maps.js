@@ -61,7 +61,7 @@ function initMap() {
 }
 
 function updateMap(lat = null, long = null) {
-  console.log(wypts);
+  //console.log(wypts);
   if (lat == null && long == null) {
     // Reset button clicked
     wypts = [];
@@ -69,23 +69,30 @@ function updateMap(lat = null, long = null) {
     $("#detail" + activeRow).css("display", "none");
     activeRow = "";
   } else {
-    new_wypt = {
-      location: {
-        lat: lat,
-        lng: long
-      },
-      stopover: true
-    };
-    // this doesnt work rn
-    if (wypts.indexOf(new_wypt) == -1) {
-      wypts.push(new_wypt);
+    var temp_wypts = [];
+    // opening place for the first time
+    if (!($("#result" + activeRow).hasClass("active"))) {
+      for (var i = 0; i < wypts.length; i++) {
+        temp_wypts.push(wypts[i]);
+      }
+      var index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
+      // only add to temp if not already in route
+      if (index == -1) {
+        temp_wypts.push({
+          location: {
+            lat: lat,
+            lng: long
+          },
+          stopover: true
+        });
+      }
     }
   }
   var mapElement = document.getElementById('map');
   directionsService.route({
     origin: origin,
     destination: destination,
-    waypoints: wypts,
+    waypoints: ($("#result" + activeRow).hasClass("active")) ? wypts : temp_wypts,
     optimizeWaypoints: true,
     travelMode: "DRIVING"
   }, function (response, status) {
