@@ -69,13 +69,17 @@ function updateMap(lat = null, long = null) {
     $("#detail" + activeRow).css("display", "none");
     activeRow = "";
   } else {
-    wypts.push({
+    new_wypt = {
       location: {
         lat: lat,
         lng: long
       },
       stopover: true
-    });
+    };
+    // this doesnt work rn
+    if (wypts.indexOf(new_wypt) == -1) {
+      wypts.push(new_wypt);
+    }
   }
   var mapElement = document.getElementById('map');
   directionsService.route({

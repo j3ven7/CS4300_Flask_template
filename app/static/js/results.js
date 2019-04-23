@@ -13,26 +13,25 @@ function toggle(element, lat, long) {
 
 
     // If the element is a new element
+    var index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
     if (activeRow != element) {
-        console.log("removed");
+        if (activeRow != "") {
+            if (index > -1) {
+                wypts.splice(index, 1);
+            }
+        }
         activeRow = element;
         $("#result" + activeRow).addClass("active");
         $("#detail" + activeRow).css("display", "block");
         $("#toggle" + activeRow).css("visibility", "visible");
         // document.getElementById("result" + activeRow).scrollIntoView();
-        var index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
-        //wypts.findIndex(findLoc(lat, long));
 
-
-        console.log("TOGGLE: " + index);
+        // No new active element - the element clicked is the currently active element
+    } else {
+        activeRow = "";
         if (index > -1) {
             wypts.splice(index, 1);
         }
-
-
-        // No new active element
-    } else {
-        activeRow = "";
     }
 }
 
