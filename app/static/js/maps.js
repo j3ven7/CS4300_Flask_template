@@ -8,10 +8,7 @@ var destination;
 var initialDistance;
 var initialTime;
 var wypts = [];
-<<<<<<< HEAD
 var wypt_names = [];
-=======
->>>>>>> 29fd0409e99b7325159c006db638ab45ab4c916c
 var queries;
 var dist;
 
@@ -73,7 +70,6 @@ function updateMap(lat = null, long = null) {
     $("#detail" + activeRow).css("display", "none");
     activeRow = "";
   } else {
-<<<<<<< HEAD
     var temp_wypts = [];
     // opening place for the first time
     if (!($("#result" + activeRow).hasClass("active"))) {
@@ -92,25 +88,12 @@ function updateMap(lat = null, long = null) {
         });
       }
     }
-=======
-    wypts.push({
-      location: {
-        lat: lat,
-        lng: long
-      },
-      stopover: true
-    });
->>>>>>> 29fd0409e99b7325159c006db638ab45ab4c916c
   }
   var mapElement = document.getElementById('map');
   directionsService.route({
     origin: origin,
     destination: destination,
-<<<<<<< HEAD
     waypoints: ($("#result" + activeRow).hasClass("active")) ? wypts : temp_wypts,
-=======
-    waypoints: wypts,
->>>>>>> 29fd0409e99b7325159c006db638ab45ab4c916c
     optimizeWaypoints: true,
     travelMode: "DRIVING"
   }, function (response, status) {
