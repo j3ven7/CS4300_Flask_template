@@ -41,15 +41,18 @@ function toggleMyRoute(element, lat, long) {
     // Plus sign active
     if ($("#toggle" + element).attr("src") == "static/images/plus.png") {
         $("#toggle" + element).attr("src", "static/images/minus.png")
-        // remove waypoint
-
+        $("#toggle" + element).attr("src", "static/images/minus.png");
+        $("#confirmation").css("opacity", "1");
+        $("#confirmation").slideDown("fast").delay(2500).slideUp('fast');
+        // add waypoint
     } else {
         $("#toggle" + element).attr("src", "static/images/plus.png")
         //wypts.push({ location: { lat: lat, lng: long }, stopover: true });
-        var index = wypts.indexOf({ location: { lat: lat, lng: long }, stopover: true });
+        var index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
         console.log("TOGGLEMYROUTE: " + index);
         if (index > -1) {
             wypts.splice(index, 1);
         }
+
     }
 }

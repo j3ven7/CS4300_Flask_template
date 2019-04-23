@@ -48,6 +48,9 @@ def formatData(places):
     # This gives all our data in the correct format
     for place in places:
         curr_reviews = trimReviews(place['reviews'])
+        place['pos_review'] = mostPositive(curr_reviews)
+        curr_reviews = [r.lower() for r in curr_reviews]
+       
         #curr_types   = trimTypes(place['types'])
         # TODO: (Josh) I think it would be dope
         # if we augmented the types by adding synonyms or similar
@@ -63,11 +66,10 @@ def formatData(places):
         # To extract key components from a review (i.e. the root and adjective describing the root)
         # and comparing these to our query (also can use types for this)
         curr_types   = place['types'][1:-1]
-        curr_name    = place['name']
+        curr_name    = place['name'] 
         
         place['reviews'] = curr_reviews
         place['types']   = curr_types
-        place['pos_review'] = mostPositive(curr_reviews)
         
         places_to_details[curr_name] = place
         
@@ -75,9 +77,7 @@ def formatData(places):
         for review in curr_reviews:
             # This adds the name of the place to the review
             curr_review = review
-            curr_review = curr_review + " " + curr_name
-            for types in curr_types:
-                curr_review = curr_review
+            curr_review = curr_review + " " + curr_name.lower()
             all_reviews.append(curr_review)
             all_types.append(curr_types)
             
@@ -121,7 +121,9 @@ def build_inverted_index(reviews, tokenizer=TreebankWordTokenizer()):
         tokens = tokenizer.tokenize(review)
         tmp_d = {}
         # Iterate over all tokens in the document
+        punc = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
         for token in tokens:
+            token = ''.join(c for c in token if c not in punc)
             # If the token has never been seen before make an entry
             if token not in tmp_d:
                 tmp_d[token] = 0
@@ -139,7 +141,7 @@ def build_inverted_index(reviews, tokenizer=TreebankWordTokenizer()):
     return inverted_index
 
 
-def compute_idf(inv_idx, n_docs, min_df=5, max_df_ratio=0.8):
+def compute_idf(inv_idx, n_docs, min_df=1, max_df_ratio=.5):
     """ Compute term IDF values from the inverted index.
     Words that are too frequent or too infrequent get pruned.
     
@@ -176,13 +178,15 @@ def compute_idf(inv_idx, n_docs, min_df=5, max_df_ratio=0.8):
         # Doc frequency
         DF = len(inv_idx[term]) 
         # Throw term away if in fewer than 10 docs
-        if DF > 10:
+        if DF > min_df:
             # Compute idf for term t 
             IDF_t = np.log2(n_docs/(1 + DF))
             
             # Throw term away if it is in more than max_df_ratio of docs
             if DF / n_docs < max_df_ratio:
                 idf[term] = IDF_t
+            else:
+                print(term, DF/n_docs)
     
     return idf
 
@@ -229,14 +233,15 @@ def make_pickle(file):
         places = list(csv.DictReader(f))
     
     all_reviews, all_types, review_to_places, places_to_details = formatData(places)
+    #print(all_reviews)
     
     treebank_tokenizer = TreebankWordTokenizer()
     inv_idx_reviews = build_inverted_index(all_reviews)
-    idf_reviews     = compute_idf(inv_idx_reviews, len(all_reviews))
+    idf_reviews     = compute_idf(inv_idx_reviews, len(all_reviews),min_df=1,max_df_ratio=.35)
     doc_norms_reviews = compute_doc_norms(inv_idx_reviews, idf_reviews, len(all_reviews))
     
     inv_idx_types = build_inverted_index(all_types)
-    idf_types     = compute_idf(inv_idx_types, len(all_types))
+    idf_types     = compute_idf(inv_idx_types, len(all_types),min_df=1,max_df_ratio=.9)
     doc_norms_types = compute_doc_norms(inv_idx_types, idf_types, len(all_types))
     
     pickled_data = [inv_idx_reviews,idf_reviews,doc_norms_reviews,inv_idx_types,idf_types,doc_norms_types,
