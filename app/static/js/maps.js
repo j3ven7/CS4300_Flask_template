@@ -8,6 +8,7 @@ var destination;
 var initialDistance;
 var initialTime;
 var wypts = [];
+var wypt_names = [];
 var queries;
 var dist;
 

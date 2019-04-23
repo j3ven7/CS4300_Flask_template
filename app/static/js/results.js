@@ -34,7 +34,7 @@ function toggle(element, lat, long) {
     }
 }
 
-function toggleMyRoute(element, lat, long) {
+function toggleMyRoute(element, lat, long, name) {
 
     // Plus sign active
     if ($("#toggle" + element).attr("src") == "static/images/plus.png") {
@@ -44,15 +44,12 @@ function toggleMyRoute(element, lat, long) {
         $("#confirmation").slideDown("fast").delay(2500).slideUp('fast');
         // add waypoint
         wypts.push({ location: { lat: lat, lng: long }, stopover: true });
+        wypt_names.push(name);
     } else {
         $("#toggle" + element).attr("src", "static/images/plus.png")
-        //wypts.push({ location: { lat: lat, lng: long }, stopover: true });
-        // var index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
-        // console.log("TOGGLEMYROUTE: " + index);
-        // while (index > -1) {
-        //     wypts.splice(index, 1);
-        //     index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
-        // }
+        var i = wypt_names.indexOf(name);
+        wypts.splice(i, 1);
+        wypt_names.splice(i, 1);
         updateMap(lat, long);
     }
     populateMyRoute();
@@ -60,8 +57,7 @@ function toggleMyRoute(element, lat, long) {
 
 function populateMyRoute() {
     $("#myroute tbody").empty()
-    for (w in wypts) {
-        console.log("SDSD")
-        $("#myroute tbody").append("<tr><td>" + "Hello" + "</td></tr>")
+    for (w in wypt_names) {
+        $("#myroute tbody").append("<tr><td>" + wypt_names[w] + "</td></tr>")
     }
 }
