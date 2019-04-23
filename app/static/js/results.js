@@ -20,6 +20,7 @@ function toggle(element, lat, long) {
                 wypts.splice(index, 1);
                 index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
             }
+            updateMap(lat, long);
         }
         activeRow = element;
         $("#result" + activeRow).addClass("active");
