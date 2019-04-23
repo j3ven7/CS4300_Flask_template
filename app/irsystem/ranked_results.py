@@ -394,35 +394,58 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
     
     final_rst = {} # Mapping of place to final score -- including distance
     print("places length: ", len(places))
+    
     # Right now we just iterate over every place, but I think it would make more sense
     # to look at relevant ones? So check how many we get in place_data and if it has more than say
     # 30 keys we can just do cosine stuff on those? In any case it's still pretty fast
     for k in places: # Keys are the places 
-        #eliminate results more than max distance allowed from route
-        # if place_data[k]["distance"]/1609.344 > max_dist:
-        #     continue
-        
-        # Compute score wrt embeddings
-        types = places_to_details[k]["types"]
-        types_score  = computeScore(query, types, model)
-        print("types_score: ", types_score)
 
-        final_rst[k] = {}
-        
-        # score is our tf-idf score -- if no reviews match the query
-        # this score should be zero (set count to 1 to avoid div by zero error) 
+        # Only compute for places in place_data
         if k in place_data:
+            #eliminate results more than max distance allowed from route
+            if place_data[k]["distance"]/1609.344 > max_dist:
+                continue
+            
+            final_rst[k] = {}
+
+            # Compute score wrt embeddings
+            types = places_to_details[k]["types"]
+            types_score  = computeScore(query, types, model)
+            
+            # score is our tf-idf score -- if no reviews match the query
+            # this score should be zero (set count to 1 to avoid div by zero error) 
             score = place_data[k]["score"]
             count = place_data[k]["count"]
-        else:
-            score = 0
-            count = 1
         
+         # We can later omit this if and just move all the score computations into 
+         # if k in place_data once we get more data
+        else:
+
+            curr_lat = float(places_to_details[k]['lat'])
+            curr_lng = float(places_to_details[k]['lng'])
+            curr_dist      = getDistanceToRoute(waypoints, curr_lat , curr_lng)
+
+            if curr_dist/1609.344 > max_dist:
+                continue
+            
+            final_rst[k] = {}
+            # Compute score wrt embeddings
+            types = places_to_details[k]["types"]
+            types_score  = computeScore(query, types, model)
+            
+            score = 0 
+            count = 1
+
+            
+
+
         final_rst[k]['lat'] = places_to_details[k]['lat']
         final_rst[k]['long'] = places_to_details[k]['lng']
         final_rst[k]['address'] = places_to_details[k]['address']
         final_rst[k]['rating'] = places_to_details[k]['ratings']
         final_rst[k]['review'] = places_to_details[k]['pos_review']
+
+
 
         #low score results that are not "on the way" or  too close to origin/destination
         origin = np.array(waypoints[0])
@@ -437,7 +460,10 @@ or computeDistanceLatLong(lat_lng[0],lat_lng[1],waypoints[-1][0],waypoints[-1][1
                 rating_score = log10(float(final_rst[k]['rating']))/3
             except:
                 rating_score = 0
+
             final_rst[k]['score'] = (rating_score + (score / count) + (.1/(types_score + .001)))
+
+
 
     return sorted(final_rst.items(), key=lambda kv: kv[1]['score'], reverse=True)
 
