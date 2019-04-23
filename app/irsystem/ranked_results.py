@@ -452,8 +452,10 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
         destination = np.array(waypoints[-1])
         lat_lng = np.array((float(places_to_details[k]['lat']),float(places_to_details[k]['lng'])))
         signs = np.sign(origin-destination) + np.sign(origin-lat_lng)
+        back_signs = np.sign(destination-origin) + np.sign(destination-lat_lng)
         if (np.count_nonzero(signs) == 0 or computeDistanceLatLong(lat_lng[0],lat_lng[1],waypoints[0][0],waypoints[0][1]) < 16.0934
-or computeDistanceLatLong(lat_lng[0],lat_lng[1],waypoints[-1][0],waypoints[-1][1]) < 16.0934):
+            or computeDistanceLatLong(lat_lng[0],lat_lng[1],waypoints[-1][0],waypoints[-1][1]) < 16.0934
+            or np.count_nonzero(back_signs) == 0):
             final_rst[k]['score'] = -1
         else:
             try:
