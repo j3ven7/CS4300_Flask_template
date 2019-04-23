@@ -61,6 +61,7 @@ function initMap() {
 }
 
 function updateMap(lat = null, long = null) {
+  console.log(wypts);
   if (lat == null && long == null) {
     // Reset button clicked
     wypts = [];
