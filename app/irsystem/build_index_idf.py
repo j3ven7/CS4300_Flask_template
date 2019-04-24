@@ -4,11 +4,11 @@ from nltk.tokenize import TreebankWordTokenizer
 import numpy as np
 import pickle
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-
+from nltk import PorterStemmer
 
 def trimReviews(initial_reviews):
     initial_reviews = initial_reviews.split("\"")
-    unwanted_chars = ["{", "}", ",", "\"", "\'"]
+    unwanted_chars = ["{", "}", ",", "\"", "\'", "_"]
     reviews = initial_reviews
     for entry in reviews:
         if entry in unwanted_chars:
@@ -85,7 +85,7 @@ def formatData(places):
             review_id += 1
     return [all_reviews, all_types, review_to_places,places_to_details]
 
-def build_inverted_index(reviews, tokenizer=TreebankWordTokenizer()):
+def build_inverted_index(reviews, stemmer, tokenizer=TreebankWordTokenizer()):
     """ Builds an inverted index from the messages.
     
     Arguments
@@ -93,6 +93,8 @@ def build_inverted_index(reviews, tokenizer=TreebankWordTokenizer()):
     
     revies: array
         Contains every review from the scraped google results
+    stemmer: nltk PorterStemmer
+        Object for stemming tokens
     
     Returns
     =======
@@ -123,11 +125,23 @@ def build_inverted_index(reviews, tokenizer=TreebankWordTokenizer()):
         # Iterate over all tokens in the document
         punc = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
         for token in tokens:
-            token = ''.join(c for c in token if c not in punc)
-            # If the token has never been seen before make an entry
-            if token not in tmp_d:
-                tmp_d[token] = 0
-            tmp_d[token] += 1
+            # Need to do this in case it is a type
+            if "_" in token:
+                type_tokens = token.split("_")
+                for t in type_tokens:
+                    t = stemmer.stem(t)
+                    t = ''.join(c for c in t if c not in punc)
+                    if t not in tmp_d:
+                        tmp_d[t] = 0
+                    tmp_d[t] += 1
+
+            else:
+                token = stemmer.stem(token)
+                token = ''.join(c for c in token if c not in punc)
+                # If the token has never been seen before make an entry
+                if token not in tmp_d:
+                    tmp_d[token] = 0
+                tmp_d[token] += 1
         
         # Now we iterate over our temporary dict
         # And add entries into our inverted_index
@@ -227,6 +241,23 @@ def compute_doc_norms(index, idf, n_docs):
 
     return norms
 
+def test_inv_idx(file='places_db_v2.csv'):
+    cwd = os.getcwd()
+    with open(file, mode='r') as f:
+        places = list(csv.DictReader(f))
+    
+    print("formatData")
+    all_reviews, all_types, review_to_places, places_to_details = formatData(places)
+    print("done formatData")
+    #print(all_reviews)
+    
+    stemmer = PorterStemmer()
+
+    treebank_tokenizer = TreebankWordTokenizer()
+    print("build_inverted_index")
+    inv_indx_types = build_inverted_index(all_types, stemmer)
+    return inv_indx_types
+
 def make_pickle(file):
     cwd = os.getcwd()
     with open(file, mode='r') as f:
@@ -235,12 +266,14 @@ def make_pickle(file):
     all_reviews, all_types, review_to_places, places_to_details = formatData(places)
     #print(all_reviews)
     
+    stemmer = PorterStemmer()
+
     treebank_tokenizer = TreebankWordTokenizer()
-    inv_idx_reviews = build_inverted_index(all_reviews)
+    inv_idx_reviews = build_inverted_index(all_reviews, stemmer)
     idf_reviews     = compute_idf(inv_idx_reviews, len(all_reviews),min_df=1,max_df_ratio=.35)
     doc_norms_reviews = compute_doc_norms(inv_idx_reviews, idf_reviews, len(all_reviews))
     
-    inv_idx_types = build_inverted_index(all_types)
+    inv_idx_types = build_inverted_index(all_types, stemmer)
     idf_types     = compute_idf(inv_idx_types, len(all_types),min_df=1,max_df_ratio=.9)
     doc_norms_types = compute_doc_norms(inv_idx_types, idf_types, len(all_types))
     
