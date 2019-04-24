@@ -4,7 +4,7 @@ import googlemaps
 from nltk.tokenize import TreebankWordTokenizer
 from datetime import datetime
 import numpy as np
-from math import sin, cos, sqrt, atan2, radians, log10
+from math import sin, cos, sqrt, atan2, radians, log10, isnan
 import scipy.spatial.distance as s
 
 def queryToVec(query, model):
@@ -51,6 +51,8 @@ def computeTopTypes(query, all_types, model):
     for t in all_types:
         try:
             score = s.cosine(query_vec, model[t.lower()])
+            if isnan(score):
+                score = 0
             rst[t] = score
         # But types could be "point_of_interest"
         except:
@@ -58,6 +60,8 @@ def computeTopTypes(query, all_types, model):
                 tmp = t.split("_")
                 tmp_vec = queryToVec(tmp, model)
                 score = s.cosine(query_vec, tmp_vec)
+                if isnan(score):
+                    score = 0
                 rst[t] = score
             except:
                 print(t, " was not in the dictionary")
@@ -83,12 +87,14 @@ def computeScore(query, types, model):
     
     # Now we need to convert our types
     types = types.split(",")
-    length = len(types)
+    length = 1 if len(types) == 0 else len(types) 
     
     # Iterating through our types
     for t in types:
         try:
             score = s.cosine(query_vec, model[t.lower()])
+            if isnan(score):
+                score = 0
             final_score += score
         # But types could be "point_of_interest"
         except:
@@ -96,10 +102,11 @@ def computeScore(query, types, model):
                 tmp = t.split("_")
                 tmp_vec = queryToVec(tmp, model)
                 score = s.cosine(query_vec, tmp_vec)
+                if isnan(score):
+                    score = 0
                 final_score += score
             except:
-                print(t, len(t), " was not in the dictionary")
-                
+                print(t, len(t), " was not in the dictionary")             
     return (final_score / length)
 
 def getTopPlacesTypes(places_to_details, query, model):
@@ -314,7 +321,8 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
         Dictionary mapping a place to its score 
     """
     seen_review_ids    = set() # Set of each seen id so far
-    overlap_ids = set() 
+    overlap_ids = set()
+    query = query.lower()
 
     places = places_to_details.keys()
     
@@ -398,7 +406,7 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
     # Right now we just iterate over every place, but I think it would make more sense
     # to look at relevant ones? So check how many we get in place_data and if it has more than say
     # 30 keys we can just do cosine stuff on those? In any case it's still pretty fast
-    for k in places: # Keys are the places 
+    for k in places: # Keys are the places
 
         # Only compute for places in place_data
         if k in place_data:
@@ -420,11 +428,12 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
          # We can later omit this if and just move all the score computations into 
          # if k in place_data once we get more data
         else:
-
+            
             curr_lat = float(places_to_details[k]['lat'])
             curr_lng = float(places_to_details[k]['lng'])
+            
             curr_dist      = getDistanceToRoute(waypoints, curr_lat , curr_lng)
-
+            
             if curr_dist/1609.344 > max_dist:
                 continue
             
@@ -446,7 +455,7 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
         final_rst[k]['review'] = places_to_details[k]['pos_review']
 
 
-
+        
         #low score results that are not "on the way" or  too close to origin/destination
         origin = np.array(waypoints[0])
         destination = np.array(waypoints[-1])
@@ -458,14 +467,13 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
             or np.count_nonzero(back_signs) == 0):
             final_rst[k]['score'] = -1
         else:
+            name_score = .3 if query.lower() in k.lower() else 0
             try:
                 rating_score = log10(float(final_rst[k]['rating']))/3
             except:
                 rating_score = 0
 
-            final_rst[k]['score'] = (rating_score + (score / count) + (.1/(types_score + .001)))
-
-
+            final_rst[k]['score'] = rating_score + (score / count) + (.1/(types_score + .001)) + name_score
 
     return sorted(final_rst.items(), key=lambda kv: kv[1]['score'], reverse=True)
 

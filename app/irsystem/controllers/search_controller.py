@@ -81,7 +81,7 @@ def search():
 		for query in queries:
 			# This is used for searching against our word embeddings matrix
 			query_embedding = ''.join(c for c in query if c not in punc)
-			print("Query: ", query_embedding)
+			#print("Query: ", query_embedding)
 			
 			# This is used for searching against our tf-idf matrix
 			# convert to an array and stem each individual word
@@ -93,7 +93,7 @@ def search():
 			
 			# Need to feed a string to our search results so rejoin the results
 			query = ' '.join([q for q in query])
-			print("query: ", query)
+			#print("query: ", query)
 			index_search_rst_reviews = rr.index_search(query, inv_idx_reviews, idf_reviews, doc_norms_reviews)
 			index_search_rst_types = rr.index_search(query, inv_idx_types, idf_types, doc_norms_types)
 			ranked_rst = rr.computeScores(waypoints, query_embedding, big_model, index_search_rst_reviews, index_search_rst_types, review_to_places, places_to_details, max_dist)
