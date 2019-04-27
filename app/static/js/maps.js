@@ -19,17 +19,17 @@ function initMap() {
   mapElement = document.getElementById('map');
   origin = coords[0];
   destination = coords[1];
-  origin_formatted = coords[2];
-  dest_formatted = coords[3];
 
-  document.getElementById("origin-input").value = origin_formatted;
-  document.getElementById("destination-input").value = dest_formatted;
-  document.getElementById("description-input").value = queries;
+  document.getElementById("origin-input").value = origin;
+  document.getElementById("destination-input").value = destination;
   document.getElementById("distance-input").value = dist;
+  for (var i = 0; i < queries.split(",").length; i++) {
+    pushQueryHTML(queries.split(",")[i]);
+  }
 
   map = new google.maps.Map(mapElement, {
     zoom: 7,
-    center: origin
+    center: {lat: 40.7128, lng: -74.0060} // Random start center, doesnt really matter
   });
   directionsRenderer.setMap(map);
   directionsService.route({

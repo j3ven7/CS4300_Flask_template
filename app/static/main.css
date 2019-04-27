@@ -77,6 +77,65 @@ html, body {
     color: #F56600;
     font-size: 60px;
     font-weight: bold;
+    display: flex;
+}
+
+#link img {
+    height: 50px;
+    margin: 10px 8px 0 10px;
+}
+
+.queries-container {
+    display: flex;
+    width: 37%;
+    margin: 0 auto;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    max-height: 0px;
+    transition: max-height 5s ease;
+}
+
+@keyframes slide-up {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.single-query {
+    padding: 8px;
+    margin: 11px;
+    background-color: #F56600;
+    font-size: 18px;
+    box-shadow: 0 19px 38px rgba(0,0,0,0.35), 0 12px 12px rgba(0,0,0,0.30);
+    color: white;
+    animation: slide-up 1.2s ease;
+    transition: background-color 0.4s;
+    display: flex;
+}
+
+.single-query:hover {
+    background-color: rgb(177, 35, 0);
+}
+
+.single-query img {
+    height: 16px;
+    margin: auto 0px auto 7px;
+}
+
+@keyframes spin { 
+    100% { 
+        transform: rotate(90deg);
+    }
+}
+
+.spun {
+    animation: spin 0.3s;
 }
 
 .container {

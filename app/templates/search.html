@@ -7,10 +7,12 @@
     <link rel="stylesheet" href="/static/bootstrap.min.css">
     <link rel="stylesheet" href="/static/main.css">
     <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+    <link rel="icon" href="/static/images/wiggle-icon.png" />
     <title>De-Tour Guide</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="/static/js/maps.js"></script>
     <script src="/static/js/results.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="/static/js/query.js"></script>
 </head>
 
 <body>
@@ -19,7 +21,7 @@
     <div id="confirmation">Succesfully added this spot to your route!</div>
     <form class="form-inline global-search" id="submit-form">
         <h1 style="font-size: 55px;">
-            <a href="./" id="link">{{ name }}</a>
+            <a href="./" id="link"><p>de</p><img src="../static/images/wiggle.png"><p>tour guide</p></a>
         </h1>
         <br>
         <h2 style="font-size: 20px;">
@@ -36,18 +38,25 @@
                 required>
         </div>
         <br>
-        <h2> Please Describe What You're Looking For </h2>
+        <h2> What do you want to see? </h2>
         <br>
-        <h4> (Separate each aspect with a comma) </h4>
-        <br>
+        <h4> Add multiple search terms to your query (limit 10) </h4>
+        <br><br>
         <div class="form-group">
-            <input id="description-input" type="text" name="description" maxlength="200" class="form_control input"
-                placeholder="ex. 'Family friendly, delicious seafood, zoo with elephants'" style="margin-top: 10px"
-                size="60" required>
+            <textarea id="description-input" type="text" maxlength="200" class="form-control input"
+                placeholder="ex. 'Family friendly parks, zoo with elephants, fun adventure'"
+                size="60" onkeypress=addToQuery(event) rows="1"></textarea>
+            <button type="button" id="add-to-query" onclick=addToQuery(event)>
+                Add to query
+            </button>
+        </div>
+        <br><br>
+        <div class="queries-container">
+
         </div>
         <br>
         <h5>Approximately how many miles are you willing to deviate from the path?</h5>
-        <br>
+        <br><br>
         <select id="distance-input" name="distance">
             <option value="3000">Over 100</option>
             <option value="100">100</option>
@@ -57,26 +66,17 @@
         </select>
         <br>
         <br>
-        <button type="submit" class="btn btn-info"> Go! </button>
+        <input type="hidden" name="description"/>
+        <button type="submit" class="btn btn-info" onclick="concatQueries(event)"> Go! </button>
     </form>
     <div class="centered">
-        {% if data and results %}
+        {% if results and inputs %}
         <h1>{{output_message}}</h1>
         <h3 id="time"></h3>
         <h3 id="distance"></h3>
-        {% for d in data %}
+        {% for inp in inputs %}
         <script>
-            coords.push(
-                {
-                    lat: parseFloat('{{ d[0] }}'),
-                    lng: parseFloat('{{ d[1] }}')
-                }
-            )
-        </script>
-        {% endfor %}
-        {% for a in addresses %}
-        <script>
-            coords.push('{{ a }}')
+            coords.push('{{ inp }}')
         </script>
         {% endfor %}
         <script>

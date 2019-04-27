@@ -7,7 +7,6 @@ function toggle(element, lat, long) {
     $("#result" + activeRow).removeClass("active");
     $("#toggle" + activeRow).css("visibility", "hidden");
 
-
     // If the element is a new element
     var index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
     if (activeRow != element) {
@@ -40,8 +39,7 @@ function toggleMyRoute(element, lat, long, name) {
     if ($("#toggle" + element).attr("src") == "static/images/plus.png") {
         $("#toggle" + element).attr("src", "static/images/minus.png")
         $("#toggle" + element).attr("src", "static/images/minus.png");
-        $("#confirmation").css("opacity", "1");
-        $("#confirmation").slideDown("fast").delay(2500).slideUp('fast');
+        slideDownNotification(name);
         // add waypoint
         wypts.push({ location: { lat: lat, lng: long }, stopover: true });
         wypt_names.push(name);
@@ -60,4 +58,19 @@ function populateMyRoute() {
     for (w in wypt_names) {
         $("#myroute tbody").append("<tr><td>" + wypt_names[w] + "</td></tr>")
     }
+}
+
+function slideDownNotification(name="") {
+
+    if (name) {
+        $("#confirmation").css("background-color", "#7fb800");
+        $("#confirmation").text("Succesfully added " + name + " to your route!");
+        
+    } else {
+        // empty string passed
+        $("#confirmation").css("background-color", "#c32f27");
+        $("#confirmation").text("Please enter a valid search query!");
+    }
+    $("#confirmation").css("opacity", "1");
+    $("#confirmation").slideDown("fast").delay(2500).slideUp('fast');
 }

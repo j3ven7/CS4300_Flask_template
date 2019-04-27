@@ -9,7 +9,6 @@ import googlemaps
 
 import pickle
 
-project_name = "De-Tour Guide"
 net_id = "Josh Even (jre83), Josh Sones (js2572), Adomas Hassan (ah667), Jesse Salazar (js2928), Luis Verdi (lev27)"
 API_KEY = os.environ["GOOGLE_KEY"]
 client = googlemaps.Client(API_KEY)
@@ -36,14 +35,7 @@ def loadGloveModel(gloveFile):
 
 print("here")
 big_model   = loadGloveModel('GloVe-1.2/vectors.txt')
-print(len(big_model))
-
-def getLatLong(origin, destination):
-    origin_gc = client.geocode(origin)[0]['geometry']['location']
-    origin_coords = (origin_gc['lat'], origin_gc['lng'])
-    dest_gc = client.geocode(destination)[0]['geometry']['location']
-    dest_coords = (dest_gc['lat'], dest_gc['lng'])
-    return [origin_coords, dest_coords], [client.geocode(origin)[0]['formatted_address'], client.geocode(destination)[0]['formatted_address']]
+# print(len(big_model))
 
 @irsystem.route('/', methods=['GET'])
 def search():
@@ -62,11 +54,10 @@ def search():
         data = []
         output_message = ''
         results = []
-        adr = []
+        inputs = []
     else:
-        data, addresses = getLatLong(origin, destination)
-        adr = [x.replace(', USA', '') for x in addresses]
-        output_message = "Your search: " + adr[0] + " to " + adr[1]
+        inputs = [origin, destination]
+        output_message = "Your search: " + origin + " to " + destination
         # this is where the results get populated in
         print("getting results")
         with open("./app/irsystem/pickled_data_v2","rb") as f:
@@ -83,4 +74,4 @@ def search():
             ranked_rst = rr.computeScores(waypoints, query.split(" "), big_model, index_search_rst_reviews, index_search_rst_types, review_to_places, places_to_details, max_dist)
             results.append(ranked_rst[:10])
 
-    return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, queries=request.args.get('description'), dist=request.args.get('distance'), data=data, addresses=adr, results=results, api_key=API_KEY)
+    return render_template('search.html', netid=net_id, output_message=output_message, inputs=inputs, queries=request.args.get('description'), dist=request.args.get('distance'), results=results, api_key=API_KEY)
