@@ -56,16 +56,15 @@ def search():
 		data = []
 		output_message = ''
 		results = []
-		adr = []
+		inputs = []
 	else:
-		data, addresses = getLatLong(origin, destination)
-		adr = [x.replace(', USA', '') for x in addresses]
-		output_message = "Your search: " + adr[0] + " to " + adr[1]
-		# this is where the results get populated in
+		inputs = [origin, destination]
+		output_message = "Your search: " + origin + " to " + destination
+        # this is where the results get populated in
 		print("getting results")
 		with open("./app/irsystem/pickled_data_v2","rb") as f:
 			inv_idx_reviews,idf_reviews,doc_norms_reviews,inv_idx_types,idf_types,doc_norms_types, review_to_places, places_to_details = pickle.load(f)
-
+			
 		waypoints = rr.generateWaypoints(origin, destination)
 		results = []
 		punc = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
@@ -90,4 +89,4 @@ def search():
 			index_search_rst_types = rr.index_search(query, inv_idx_types, idf_types, doc_norms_types)
 			ranked_rst = rr.computeScores(waypoints, query_embedding, big_model, index_search_rst_reviews, index_search_rst_types, review_to_places, places_to_details, max_dist)
 			results.append(ranked_rst[:10])
-	return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, queries=request.args.get('description'), dist=request.args.get('distance'), data=data, addresses=adr, results=results, api_key=API_KEY)
+	return render_template('search.html', netid=net_id, output_message=output_message, inputs=inputs, queries=request.args.get('description'), dist=request.args.get('distance'), results=results, api_key=API_KEY)
