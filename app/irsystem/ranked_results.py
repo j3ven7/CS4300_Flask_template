@@ -4,7 +4,7 @@ import googlemaps
 from nltk.tokenize import TreebankWordTokenizer
 from datetime import datetime
 import numpy as np
-from math import sin, cos, sqrt, atan2, radians, log10
+from math import sin, cos, sqrt, atan2, radians, log10, isnan
 import scipy.spatial.distance as s
 
 def queryToVec(query, model):
@@ -51,6 +51,8 @@ def computeTopTypes(query, all_types, model):
     for t in all_types:
         try:
             score = s.cosine(query_vec, model[t.lower()])
+            if isnan(score):
+                score = 0
             rst[t] = score
         # But types could be "point_of_interest"
         except:
@@ -58,6 +60,8 @@ def computeTopTypes(query, all_types, model):
                 tmp = t.split("_")
                 tmp_vec = queryToVec(tmp, model)
                 score = s.cosine(query_vec, tmp_vec)
+                if isnan(score):
+                    score = 0
                 rst[t] = score
             except:
                 print(t, " was not in the dictionary")
@@ -83,12 +87,14 @@ def computeScore(query, types, model):
     
     # Now we need to convert our types
     types = types.split(",")
-    length = len(types)
+    length = 1 if len(types) == 0 else len(types) 
     
     # Iterating through our types
     for t in types:
         try:
             score = s.cosine(query_vec, model[t.lower()])
+            if isnan(score):
+                score = 0
             final_score += score
         # But types could be "point_of_interest"
         except:
@@ -96,10 +102,11 @@ def computeScore(query, types, model):
                 tmp = t.split("_")
                 tmp_vec = queryToVec(tmp, model)
                 score = s.cosine(query_vec, tmp_vec)
+                if isnan(score):
+                    score = 0
                 final_score += score
             except:
-                print(t, len(t), " was not in the dictionary")
-                
+                print(t, len(t), " was not in the dictionary")             
     return (final_score / length)
 
 def getTopPlacesTypes(places_to_details, query, model):
@@ -314,7 +321,8 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
         Dictionary mapping a place to its score 
     """
     seen_review_ids    = set() # Set of each seen id so far
-    overlap_ids = set() 
+    overlap_ids = set()
+    query = query.lower()
 
     places = places_to_details.keys()
     
@@ -363,11 +371,12 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
     # No entries in the query that were included in our types
     else:
         # Takes all unique results - some are words that appeared in a review, others are types, some are both
-        all_keys = list(set(list(index_search_rst_reviews.keys()) + list(index_search_rst_types.keys())))
-        print("all_keys: ", all_keys)
+        # all_keys = list(set(list(index_search_rst_reviews.keys()) + list(index_search_rst_types.keys())))
+        # print("all_keys: ", all_keys)
         # NOTE: We can include a distance threshold here and throw places out based on distance
-        for key in all_keys:
+        for key in index_search_rst_reviews.keys():
             curr_place         = review_to_places[key]
+
             curr_score         = index_search_rst_reviews[key]
 
             if curr_place not in place_data:
@@ -393,45 +402,78 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
     
     final_rst = {} # Mapping of place to final score -- including distance
     print("places length: ", len(places))
-    for k in places: # Keys are the places 
-        #eliminate results more than max distance allowed from route
-        # if place_data[k]["distance"]/1609.344 > max_dist:
-        #     continue
-        
-        # Compute score wrt embeddings
-        types = places_to_details[k]["types"]
-        types_score  = computeScore(query, types, model)
-        print("types_score: ", types_score)
+    
+    # Right now we just iterate over every place, but I think it would make more sense
+    # to look at relevant ones? So check how many we get in place_data and if it has more than say
+    # 30 keys we can just do cosine stuff on those? In any case it's still pretty fast
+    for k in places: # Keys are the places
 
-        # TODO: Include distance in our score -- place_distances[k] -- in some way
-        final_rst[k] = {}
+        # Only compute for places in place_data
         if k in place_data:
+            #eliminate results more than max distance allowed from route
+            if place_data[k]["distance"]/1609.344 > max_dist:
+                continue
+            
+            final_rst[k] = {}
+
+            # Compute score wrt embeddings
+            types = places_to_details[k]["types"]
+            types_score  = computeScore(query, types, model)
+            
+            # score is our tf-idf score -- if no reviews match the query
+            # this score should be zero (set count to 1 to avoid div by zero error) 
             score = place_data[k]["score"]
             count = place_data[k]["count"]
-        else:
-            score = 0
-            count = 1
         
+         # We can later omit this if and just move all the score computations into 
+         # if k in place_data once we get more data
+        else:
+            
+            curr_lat = float(places_to_details[k]['lat'])
+            curr_lng = float(places_to_details[k]['lng'])
+            
+            curr_dist      = getDistanceToRoute(waypoints, curr_lat , curr_lng)
+            
+            if curr_dist/1609.344 > max_dist:
+                continue
+            
+            final_rst[k] = {}
+            # Compute score wrt embeddings
+            types = places_to_details[k]["types"]
+            types_score  = computeScore(query, types, model)
+            
+            score = 0 
+            count = 1
+
+            
+
+
         final_rst[k]['lat'] = places_to_details[k]['lat']
         final_rst[k]['long'] = places_to_details[k]['lng']
         final_rst[k]['address'] = places_to_details[k]['address']
         final_rst[k]['rating'] = places_to_details[k]['ratings']
         final_rst[k]['review'] = places_to_details[k]['pos_review']
 
+
+        
         #low score results that are not "on the way" or  too close to origin/destination
         origin = np.array(waypoints[0])
         destination = np.array(waypoints[-1])
         lat_lng = np.array((float(places_to_details[k]['lat']),float(places_to_details[k]['lng'])))
         signs = np.sign(origin-destination) + np.sign(origin-lat_lng)
+        back_signs = np.sign(destination-origin) + np.sign(destination-lat_lng)
         if (np.count_nonzero(signs) == 0 or computeDistanceLatLong(lat_lng[0],lat_lng[1],waypoints[0][0],waypoints[0][1]) < 16.0934
-or computeDistanceLatLong(lat_lng[0],lat_lng[1],waypoints[-1][0],waypoints[-1][1]) < 16.0934):
+            or computeDistanceLatLong(lat_lng[0],lat_lng[1],waypoints[-1][0],waypoints[-1][1]) < 16.0934
+            or np.count_nonzero(back_signs) == 0):
             final_rst[k]['score'] = -1
         else:
+            name_score = .3 if query.lower() in k.lower() else 0
             try:
                 rating_score = log10(float(final_rst[k]['rating']))/3
             except:
                 rating_score = 0
-            final_rst[k]['score'] = (rating_score + (score / count) + (.1/(types_score + .001)))
+
+            final_rst[k]['score'] = rating_score + (score / count) + (.1/(types_score + .001)) + name_score
 
     return sorted(final_rst.items(), key=lambda kv: kv[1]['score'], reverse=True)
 
