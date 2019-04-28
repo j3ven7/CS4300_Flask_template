@@ -495,7 +495,7 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
             except:
                 rating_score = 0
             
-            final_rst[k]['score'] = rating_score + (score / count) + (.1/(types_score + .001)) + name_score + svd_score/10
+            final_rst[k]['score'] = rating_score + (score / count) + (.1/(types_score + .001)) + name_score + svd_score/100
     return sorted(final_rst.items(), key=lambda kv: kv[1]['score'], reverse=True)
 
     
