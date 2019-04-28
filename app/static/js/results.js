@@ -1,5 +1,13 @@
 var activeRow = "";
 
+$(document).ready(function() {
+    $("#show-results").height($("#map").outerHeight());
+});
+
+$(window).resize(function() {
+    $("#show-results").height($("#map").outerHeight());
+});
+
 function toggle(element, lat, long) {
 
     // Revert the active row
@@ -23,7 +31,7 @@ function toggle(element, lat, long) {
         $("#toggle" + activeRow).css("visibility", "visible");
         // document.getElementById("result" + activeRow).scrollIntoView();
 
-        // No new active element - the element clicked is the currently active element
+    // No new active element - the element clicked is the currently active element
     } else {
         activeRow = "";
         while (index > -1) {
@@ -73,4 +81,16 @@ function slideDownNotification(name="") {
     }
     $("#confirmation").css("opacity", "1");
     $("#confirmation").slideDown("fast").delay(2500).slideUp('fast');
+}
+
+function toggleQueryTab(i) {
+    if (activeTab == i) {
+        // Don't do anything since its already active
+    } else {
+        $("#query-tab" + activeTab).removeClass("active-tab")
+        $("#result-table" + activeTab).removeClass("active-table")
+        $("#query-tab" + i).addClass("active-tab")
+        $("#result-table" + i).addClass("active-table")
+        activeTab = i;
+    }
 }

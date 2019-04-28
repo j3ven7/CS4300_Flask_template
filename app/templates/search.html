@@ -90,31 +90,35 @@
 
     <div class="container">
         <div id="map"></div>
-        <div id="results-container">
-            <!-- <div id="results-tabs">
-
-        </div> -->
-            <table id="results">
-                {% for (name, details) in results[0] %}
-                <tr onclick="updateMap(parseFloat('{{ details.lat }}'), parseFloat('{{ details.long }}')); 
-                            toggle('{{loop.index0}}', parseFloat('{{details.lat}}'), parseFloat('{{details.long}}'))"
-                    class="result" id="result{{ loop.index0 }}">
-                    <td>
-                        <div class="result-name">{{ name }}</div>
-                        <img class="add-toggle " id="toggle{{ loop.index0 }}" src="static/images/plus.png"
-                            onclick="event.stopPropagation(); toggleMyRoute('{{ loop.index0 }}', parseFloat('{{details.lat}}'), parseFloat('{{details.long}}'), '{{ name }}')">
-                        <div class="detail" id="detail{{ loop.index0 }}">
-                            <div>
-                                {{ details.address }}
+        <div id="show-results">
+            <div id="results-tabs">
+            </div>
+            <div id="results-container">
+                {% for result in results %}
+                {% set outer_loop = loop %}
+                <table class="result-table" id="result-table{{ loop.index0 }}">
+                    {% for (name, details) in result %}
+                    <tr onclick="updateMap(parseFloat('{{ details.lat }}'), parseFloat('{{ details.long }}')); 
+                                toggle('{{loop.index0}}-{{ outer_loop.index0 }}', parseFloat('{{details.lat}}'), parseFloat('{{details.long}}'))"
+                        class="result" id="result{{ loop.index0 }}-{{ outer_loop.index0 }}">
+                        <td>
+                            <div class="result-name">{{ name }}</div>
+                            <img class="add-toggle " id="toggle{{ loop.index0 }}-{{ outer_loop.index0 }}" src="static/images/plus.png"
+                                onclick="event.stopPropagation(); toggleMyRoute('{{ loop.index0 }}-{{ outer_loop.index0 }}', parseFloat('{{details.lat}}'), parseFloat('{{details.long}}'), '{{ name }}')">
+                            <div class="detail" id="detail{{ loop.index0 }}-{{ outer_loop.index0 }}">
+                                <div>
+                                    {{ details.address }}
+                                </div>
+                                <div>
+                                    {{ details.review }}
+                                </div>
                             </div>
-                            <div>
-                                {{ details.review }}
-                            </div>
-                        </div>
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
                 {% endfor %}
-            </table>
+            </div>
         </div>
         <br>
         <div id="myroute_container">

@@ -14,7 +14,6 @@ function pushQueryHTML(input) {
     query_box.click(function() {
         query_box.hide("340");
         queryList.splice(queryList.indexOf(input), 1);
-        console.log(queryList)
     });
 
     $(".queries-container").css("max-height", "1000px");
