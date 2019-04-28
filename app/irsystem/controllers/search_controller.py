@@ -35,7 +35,10 @@ def loadGloveModel(gloveFile):
         model[word] = embedding #, magnitude)
     return model
 
-print("here")
+print("Loading SVD Model")
+with open("./app/irsystem/pickled_svd","rb") as f:
+    close_words = pickle.load(f)
+            
 big_model   = loadGloveModel('GloVe-1.2/vectors.txt')
 # print(len(big_model))
 
@@ -64,7 +67,6 @@ def search():
 		print("getting results")
 		with open("./app/irsystem/pickled_data_v2","rb") as f:
 			inv_idx_reviews,idf_reviews,doc_norms_reviews,inv_idx_types,idf_types,doc_norms_types, review_to_places, places_to_details = pickle.load(f)
-			
 		waypoints = rr.generateWaypoints(origin, destination)
 		results = []
 		punc = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
@@ -87,6 +89,6 @@ def search():
 			#print("query: ", query)
 			index_search_rst_reviews = rr.index_search(query, inv_idx_reviews, idf_reviews, doc_norms_reviews)
 			index_search_rst_types = rr.index_search(query, inv_idx_types, idf_types, doc_norms_types)
-			ranked_rst = rr.computeScores(waypoints, query_embedding, big_model, index_search_rst_reviews, index_search_rst_types, review_to_places, places_to_details, max_dist)
+			ranked_rst = rr.computeScores(waypoints, query_embedding, big_model, index_search_rst_reviews, index_search_rst_types, review_to_places, places_to_details, max_dist, close_words)
 			results.append(ranked_rst[:10])
 	return render_template('search.html', netid=net_id, output_message=output_message, inputs=inputs, queries=request.args.get('description'), dist=request.args.get('distance'), results=results, api_key=API_KEY)

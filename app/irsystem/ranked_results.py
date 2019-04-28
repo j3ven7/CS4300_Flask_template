@@ -6,6 +6,7 @@ from datetime import datetime
 import numpy as np
 from math import sin, cos, sqrt, atan2, radians, log10, isnan
 import scipy.spatial.distance as s
+import re
 
 def queryToVec(query, model):
     """
@@ -302,8 +303,27 @@ def index_search(query, index, idf, doc_norms, tokenizer=TreebankWordTokenizer()
     
     return rst
 
+def svdScore(query,curr_types,close_words):
+    types = curr_types.replace('_',' ').split(',')
+    try:
+        types.remove('point of interest')
+    except:
+        pass
+    try:
+        types.remove('establishment')
+    except:
+        pass
+    types = re.findall(r"[\w']+", ' '.join(types))
+    score = 0
+    for word in query.split():
+        if word in close_words:
+            for t in types:
+                if t in close_words and t != word:
+                    score += close_words[word][t]
+    return score     
+
 def computeScores(waypoints, query, model, index_search_rst_reviews, index_search_rst_types, 
-                  review_to_places, places_to_details, max_dist):
+                  review_to_places, places_to_details, max_dist,close_words):
     """
     Takes scores that we get from our index search against types and reviews and computes
     distances between each place to rank our results
@@ -320,6 +340,7 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
     Return:
         Dictionary mapping a place to its score 
     """
+    
     seen_review_ids    = set() # Set of each seen id so far
     overlap_ids = set()
     query = query.lower()
@@ -468,13 +489,13 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
             final_rst[k]['score'] = -1
         else:
             name_score = .3 if query.lower() in k.lower() else 0
+            svd_score = svdScore(query, places_to_details[k]['types'], close_words)
             try:
                 rating_score = log10(float(final_rst[k]['rating']))/3
             except:
                 rating_score = 0
-
-            final_rst[k]['score'] = rating_score + (score / count) + (.1/(types_score + .001)) + name_score
-
+            
+            final_rst[k]['score'] = rating_score + (score / count) + (.1/(types_score + .001)) + name_score + svd_score/10
     return sorted(final_rst.items(), key=lambda kv: kv[1]['score'], reverse=True)
 
     
