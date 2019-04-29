@@ -133,6 +133,9 @@ html, body {
         transform: rotate(90deg);
     }
 }
+.slidercontainer {
+    width: 400px;
+}
 
 .spun {
     animation: spin 0.3s;

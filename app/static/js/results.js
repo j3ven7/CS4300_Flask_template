@@ -1,10 +1,10 @@
 var activeRow = "";
 
-$(document).ready(function() {
+$(document).ready(function () {
     $("#show-results").height($("#map").outerHeight());
 });
 
-$(window).resize(function() {
+$(window).resize(function () {
     $("#show-results").height($("#map").outerHeight());
 });
 
@@ -31,7 +31,7 @@ function toggle(element, lat, long) {
         $("#toggle" + activeRow).css("visibility", "visible");
         // document.getElementById("result" + activeRow).scrollIntoView();
 
-    // No new active element - the element clicked is the currently active element
+        // No new active element - the element clicked is the currently active element
     } else {
         activeRow = "";
         while (index > -1) {
@@ -64,16 +64,19 @@ function toggleMyRoute(element, lat, long, name) {
 function populateMyRoute() {
     $("#myroute tbody").empty()
     for (w in wypt_names) {
-        $("#myroute tbody").append("<tr><td>" + wypt_names[w] + "</td></tr>")
+        $("#myroute tbody").append("<tr><td>" + wypt_names[w] + "<img class='add-toggle' \
+        id='toggle{{ loop.index0 }}-{{ outer_loop.index0 }}' src='static/images/minus.png' \
+        onclick='event.stopPropagation(); toggleMyRoute({{ loop.index0 }}-{{ outer_loop.index0 }}', parseFloat('{{details.lat}}'), parseFloat('{{details.long}}'), '{{ name }}')'\
+        style='visibility:visible'></td></tr>");
     }
 }
 
-function slideDownNotification(name="") {
+function slideDownNotification(name = "") {
 
     if (name) {
         $("#confirmation").css("background-color", "#7fb800");
         $("#confirmation").text("Succesfully added " + name + " to your route!");
-        
+
     } else {
         // empty string passed
         $("#confirmation").css("background-color", "#c32f27");
