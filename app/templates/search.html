@@ -62,9 +62,9 @@
         <h5>Approximately how many miles are you willing to deviate from the path?</h5>
         <br><br>
         <div class="slidercontainer">
-            <input type="range" name="distance" id="distanceInput" value="50" min="1" max="101"
+            <input type="range" name="distance" id="distanceInput" value="15" min="1" max="101"
                 oninput="distanceText.value = (distanceInput.value == 101) ? '100+' : distanceInput.value">
-            <output name="distance-txt" id="distanceText">50</output>
+            <output name="distance-txt" id="distanceText">15</output>
         </div>
         <!-- <select id="distance-input" name="distance">
             <option value="3000">Over 50</option>
@@ -112,7 +112,8 @@
                         class="result" id="result{{ loop.index0 }}-{{ outer_loop.index0 }}">
                         <td>
                             <div class="result-name">{{ name }}</div>
-                            <img class="add-toggle " id="toggle{{ loop.index0 }}-{{ outer_loop.index0 }}" src="static/images/plus.png" title="Click to add to Your Route."
+                            <img class="add-toggle " id="toggle{{ loop.index0 }}-{{ outer_loop.index0 }}"
+                                src="static/images/plus.png" title="Click to add to Your Route."
                                 onclick="event.stopPropagation(); toggleMyRoute('{{ loop.index0 }}-{{ outer_loop.index0 }}', parseFloat('{{details.lat}}'), parseFloat('{{details.long}}'), '{{ name }}')">
                             <div class="detail" id="detail{{ loop.index0 }}-{{ outer_loop.index0 }}">
                                 <div>
