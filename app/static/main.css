@@ -117,6 +117,7 @@ html, body {
     animation: slide-up 1.2s ease;
     transition: background-color 0.4s;
     display: flex;
+    cursor: pointer;
 }
 
 .single-query:hover {
@@ -126,6 +127,7 @@ html, body {
 .single-query img {
     height: 16px;
     margin: auto 0px auto 7px;
+    cursor: pointer;
 }
 
 @keyframes spin { 
@@ -181,6 +183,7 @@ html, body {
     margin-right: 0.2%;
     color: white;
     transition: all 0.5s;
+    cursor: pointer;
 }
 
 .tab p {
@@ -214,6 +217,11 @@ html, body {
     transition: all 1s;
     position: relative;
     margin-bottom: 6px;
+    cursor: pointer;
+}
+
+.result:hover {
+    background-color: #bcbcbc; 
 }
 
 .add-toggle {
