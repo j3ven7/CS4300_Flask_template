@@ -48,7 +48,7 @@
         <br><br>
         <div class="form-group">
             <textarea id="description-input" type="text" maxlength="200" class="form-control input"
-                placeholder="ex. 'Family friendly parks, zoo with elephants, fun adventure'" size="60"
+                placeholder="ex. family friendly parks, zoo with elephants, fun adventure" size="60"
                 onkeypress=addToQuery(event) rows="1"></textarea>
             <button type="button" id="add-to-query" onclick=addToQuery(event)>
                 Add to query
@@ -63,8 +63,9 @@
         <br><br>
         <div class="slidercontainer">
             <input type="range" id="distanceInput" value="15" min="1" max="101"
-                oninput="distanceText.value = (distanceInput.value == 101) ? '100+' : distanceInput.value">
-            <output name="distance-txt" id="distanceText">15</output>
+                oninput="distanceText.value = (distanceInput.value == 101) ? '100+ miles' : 
+                                                distanceInput.value == 1 ? '1 mile' : distanceInput.value + ' miles'">
+            <output name="distance-txt" id="distanceText">15 miles</output>
         </div>
         <input type="hidden" name="distance"/>
         <!-- <select id="distance-input" name="distance">

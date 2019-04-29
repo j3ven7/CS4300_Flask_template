@@ -72,6 +72,21 @@ html, body {
     background-color: #F56600;
 }
 
+#origin-input,
+#destination-input,
+#description-input,
+#add-to-query {
+    border: solid rgba(0, 25, 138, 0.3) 1px;
+    margin-bottom: 1px;
+}
+
+#origin-input::placeholder,
+#destination-input::placeholder,
+#description-input::placeholder,
+#add-to-query {
+    color: rgba(0, 25, 138, 0.5);
+}
+
 #link {
     text-decoration: none;
     color: #F56600;
@@ -145,6 +160,10 @@ input[type=range]::-webkit-slider-runnable-track {
     cursor: pointer;
     background: rgba(0, 25, 138, 0.3);
     border-radius: 40px;
+}
+
+#distanceText {
+    font-size: 17px;
 }
 
 .spun {
@@ -229,7 +248,7 @@ input[type=range]::-webkit-slider-runnable-track {
     position: relative;
     margin-bottom: 6px;
     cursor: pointer;
-    border: solid rgba(0, 25, 138, 0.6) 1px;
+    border: solid rgba(0, 25, 138, 0.3) 1px;
 }
 
 .result:hover {
