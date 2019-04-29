@@ -50,7 +50,7 @@ function toggleMyRoute(element, lat, long, name) {
         slideDownNotification(name);
         // add waypoint
         wypts.push({ location: { lat: lat, lng: long }, stopover: true });
-        wypt_names.push(name);
+        wypt_names.push([name, element]);
     } else {
         $("#toggle" + element).attr("src", "static/images/plus.png")
         var i = wypt_names.indexOf(name);
@@ -62,13 +62,22 @@ function toggleMyRoute(element, lat, long, name) {
 }
 
 function populateMyRoute() {
+    $("#myroute-container").height(function (index, height) {
+        return (100 + 50 * wypt_names.length);
+    });
     $("#myroute tbody").empty()
     for (w in wypt_names) {
-        $("#myroute tbody").append("<tr><td>" + wypt_names[w] + "<img class='add-toggle' \
-        id='toggle{{ loop.index0 }}-{{ outer_loop.index0 }}' src='static/images/minus.png' \
-        onclick='event.stopPropagation(); toggleMyRoute({{ loop.index0 }}-{{ outer_loop.index0 }}', parseFloat('{{details.lat}}'), parseFloat('{{details.long}}'), '{{ name }}')'\
-        style='visibility:visible'></td></tr>");
+        $("#myroute tbody").append(
+            "<tr><td>" + wypt_names[w][0] + "<img src='static/images/minus.png' class='myroute-remove'\
+        onclick='removeMyRoute(" + w + ")'></td></tr>");
     }
+}
+
+function removeMyRoute(i) {
+    $("#toggle" + wypt_names[i][1]).attr("src", "static/images/plus.png")
+    wypts.splice(i, 1);
+    wypt_names.splice(i, 1);
+    populateMyRoute();
 }
 
 function slideDownNotification(name = "") {

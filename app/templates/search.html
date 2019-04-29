@@ -109,6 +109,7 @@
                 {% set outer_loop = loop %}
                 <table class="result-table" id="result-table{{ loop.index0 }}">
                     {% for (name, details) in result %}
+                    {% set name_safe = name | replace("'", "") %}
                     <tr onclick="updateMap(parseFloat('{{ details.lat }}'), parseFloat('{{ details.long }}')); 
                                 toggle('{{loop.index0}}-{{ outer_loop.index0 }}', parseFloat('{{details.lat}}'), parseFloat('{{details.long}}'))"
                         class="result" id="result{{ loop.index0 }}-{{ outer_loop.index0 }}">
@@ -116,7 +117,7 @@
                             <div class="result-name">{{ name }}</div>
                             <img class="add-toggle " id="toggle{{ loop.index0 }}-{{ outer_loop.index0 }}"
                                 src="static/images/plus.png" title="Click to add to Your Route."
-                                onclick="event.stopPropagation(); toggleMyRoute('{{ loop.index0 }}-{{ outer_loop.index0 }}', parseFloat('{{details.lat}}'), parseFloat('{{details.long}}'), '{{ name }}')">
+                                onclick="event.stopPropagation(); toggleMyRoute('{{ loop.index0 }}-{{ outer_loop.index0 }}', parseFloat('{{details.lat}}'), parseFloat('{{details.long}}'), '{{ name_safe }}')">
                             <div class="detail" id="detail{{ loop.index0 }}-{{ outer_loop.index0 }}">
                                 <div>
                                     {{ details.address }}
@@ -133,7 +134,7 @@
             </div>
         </div>
         <br>
-        <div id="myroute_container">
+        <div id="myroute-container">
             <h2>Your Route!</h2>
             <h4>Open a result and click the plus to customize your route.</h4>
             <table id="myroute">
