@@ -13,6 +13,7 @@
     <script src="/static/js/maps.js"></script>
     <script src="/static/js/results.js"></script>
     <script src="/static/js/query.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
 </head>
 
 <body>
@@ -21,7 +22,10 @@
     <div id="confirmation">Succesfully added this spot to your route!</div>
     <form class="form-inline global-search" id="submit-form">
         <h1 style="font-size: 55px;">
-            <a href="./" id="link"><p>de</p><img src="../static/images/wiggle.png"><p>tour guide</p></a>
+            <a href="./" id="link">
+                <p>de</p><img src="../static/images/wiggle.png">
+                <p>tour guide</p>
+            </a>
         </h1>
         <br>
         <h2 style="font-size: 20px;">
@@ -44,8 +48,8 @@
         <br><br>
         <div class="form-group">
             <textarea id="description-input" type="text" maxlength="200" class="form-control input"
-                placeholder="ex. 'Family friendly parks, zoo with elephants, fun adventure'"
-                size="60" onkeypress=addToQuery(event) rows="1"></textarea>
+                placeholder="ex. 'Family friendly parks, zoo with elephants, fun adventure'" size="60"
+                onkeypress=addToQuery(event) rows="1"></textarea>
             <button type="button" id="add-to-query" onclick=addToQuery(event)>
                 Add to query
             </button>
@@ -57,17 +61,22 @@
         <br>
         <h5>Approximately how many miles are you willing to deviate from the path?</h5>
         <br><br>
-        <select id="distance-input" name="distance">
+        <div class="slidercontainer">
+            <input type="range" name="distance" id="distanceInput" value="50" min="1" max="101"
+                oninput="distanceText.value = (distanceInput.value == 101) ? '100+' : distanceInput.value">
+            <output name="distance-txt" id="distanceText">50</output>
+        </div>
+        <!-- <select id="distance-input" name="distance">
             <option value="3000">Over 50</option>
             <option value="50">50</option>
             <option value="40">40</option>
             <option value="30">30</option>
             <option value="20">20</option>
             <option value="10" selected>10</option>
-        </select>
+        </select> -->
         <br>
         <br>
-        <input type="hidden" name="description"/>
+        <input type="hidden" name="description" />
         <button type="submit" class="btn btn-info" onclick="concatQueries(event)"> Go! </button>
     </form>
     <div class="centered">
