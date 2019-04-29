@@ -488,14 +488,14 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
             or np.count_nonzero(back_signs) == 0):
             final_rst[k]['score'] = -1
         else:
-            name_score = .3 if query.lower() in k.lower() else 0
-            svd_score = svdScore(query, places_to_details[k]['types'], close_words)
+            name_score = .4 if query.lower() in k.lower() else 0
+            svd_score = svdScore(query, places_to_details[k]['types'], close_words)/100
             try:
                 rating_score = log10(float(final_rst[k]['rating']))/3
             except:
                 rating_score = 0
             
-            final_rst[k]['score'] = rating_score + (score / count) + (.1/(types_score + .001)) + name_score + svd_score/100
+            final_rst[k]['score'] = rating_score + (score / count) + (.1/(types_score + .001)) + name_score + svd_score
     return sorted(final_rst.items(), key=lambda kv: kv[1]['score'], reverse=True)
 
     
