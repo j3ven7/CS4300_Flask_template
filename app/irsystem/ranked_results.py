@@ -473,7 +473,15 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
         final_rst[k]['long'] = places_to_details[k]['lng']
         final_rst[k]['address'] = places_to_details[k]['address']
         final_rst[k]['rating'] = places_to_details[k]['ratings']
-        final_rst[k]['review'] = places_to_details[k]['pos_review']
+        if places_to_details[k]['pos_review'] in ['',' ','{}','[]']:
+            for review in places_to_details[k]['reviews']:
+                if review not in ['',' ','{}','[]']:
+                    final_rst[k]['review'] = review
+                    break
+                else:
+                    final_rst[k]['review'] = 'No reviews found.'
+        else:
+            final_rst[k]['review'] = places_to_details[k]['pos_review']
 
 
         
@@ -490,12 +498,13 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
         else:
             name_score = .4 if query.lower() in k.lower() else 0
             svd_score = svdScore(query, places_to_details[k]['types'], close_words)/100
+            review_score = -1 if final_rst[k]['review'] =='No reviews found.' else 0
             try:
                 rating_score = log10(float(final_rst[k]['rating']))/3
             except:
                 rating_score = 0
             
-            final_rst[k]['score'] = rating_score + (score / count) + (.1/(types_score + .001)) + name_score + svd_score
+            final_rst[k]['score'] = rating_score + (score / count) + (.1/(types_score + .001)) + name_score + svd_score + review_score
     return sorted(final_rst.items(), key=lambda kv: kv[1]['score'], reverse=True)
 
     
