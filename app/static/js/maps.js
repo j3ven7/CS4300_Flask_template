@@ -23,8 +23,8 @@ function initMap() {
 
 	document.getElementById("origin-input").value = origin;
 	document.getElementById("destination-input").value = destination;
-	document.getElementById("distanceInput").value = (dist == 101) ? 3000 : dist;
-	document.getElementById("distanceText").value = (dist == 101) ? "100+" : dist;
+	document.getElementById("distanceInput").value = (dist == 3000) ? 3000 : dist;
+	document.getElementById("distanceText").value = (dist == 3000) ? "100+" : dist;
 
 	queries = queries.split(",");
 	for (var i = 0; i < queries.length; i++) {

@@ -37,11 +37,16 @@ function addToQuery(e) {
     return false;
 }
 
-function concatQueries(e) {
+function submitQuery(e) {
     if (queryList.length == 0) {
         slideDownNotification();
         e.preventDefault();
         return false;
     }
     $("input[name='description']").val(queryList.toString());
+    if ($("#distanceInput").val() == "101") {
+        $("input[name='distance']").val("3000");
+    } else {
+        $("input[name='distance']").val($("#distanceInput").val());
+    }
 }
