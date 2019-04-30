@@ -13,7 +13,6 @@
     <script src="/static/js/maps.js"></script>
     <script src="/static/js/results.js"></script>
     <script src="/static/js/query.js"></script>
-    <script src="https://d3js.org/d3.v5.min.js"></script>
 </head>
 
 <body>
@@ -29,7 +28,7 @@
         </h1>
         <br>
         <h2 style="font-size: 20px;">
-            Find ideal stops along your Northeastern road trip route!
+            Find ideal stops along your road trip route!
         </h2>
         <div class="map"><img src="static/images/info.svg">
             <span class="maptip">Supported locations<img src="static/images/map.png"></span>
@@ -65,12 +64,11 @@
         <h5>Approximately how many miles are you willing to deviate from the path?</h5>
         <br><br>
         <div class="slidercontainer">
-            <input type="range" id="distanceInput" value="15" min="1" max="101"
-                oninput="distanceText.value = (distanceInput.value == 101) ? '100+ miles' : 
+            <input type="range" id="distanceInput" value="15" min="1" max="101" oninput="distanceText.value = (distanceInput.value == 101) ? '100+ miles' : 
                                                 distanceInput.value == 1 ? '1 mile' : distanceInput.value + ' miles'">
             <output name="distance-txt" id="distanceText">15 miles</output>
         </div>
-        <input type="hidden" name="distance"/>
+        <input type="hidden" name="distance" />
         <!-- <select id="distance-input" name="distance">
             <option value="3000">Over 50</option>
             <option value="50">50</option>
@@ -86,79 +84,80 @@
     </form>
     <div class="centered">
         {% if inputs %}
-            {% if results %}
-            <h1>{{output_message}}</h1>
-            <h3 id="time"></h3>
-            <h3 id="distance"></h3>
-            {% for inp in inputs %}
-            <script>
-                coords.push('{{ inp }}')
-            </script>
-            {% endfor %}
-            <script>
-                queries = '{{ queries }}'
-                dist = '{{ dist }}'
-            </script>
-            <script async defer src="https://maps.googleapis.com/maps/api/js?key={{api_key}}&callback=initMap">
-            </script>
-        </div>
+        {% if results %}
+        <h1>{{output_message}}</h1>
+        <h3 id="time"></h3>
+        <h3 id="distance"></h3>
+        {% for inp in inputs %}
+        <script>
+            coords.push('{{ inp }}')
+        </script>
+        {% endfor %}
+        <script>
+            queries = '{{ queries }}'
+            dist = '{{ dist }}'
+        </script>
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key={{api_key}}&callback=initMap">
+        </script>
+    </div>
 
-        <div class="container">
-            <div id="map"></div>
-            <div id="show-results">
-                <div id="results-tabs">
-                </div>
-                <div id="results-container">
-                    {% for result in results %}
-                    {% set outer_loop = loop %}
-                    <table class="result-table" id="result-table{{ loop.index0 }}">
-                        {% for (name, details) in result %}
-                        {% set name_safe = name | replace("'", "") %}
-                        <tr onclick="updateMap(parseFloat('{{ details.lat }}'), parseFloat('{{ details.long }}')); 
+    <div class="container">
+        <div id="map"></div>
+        <div id="show-results">
+            <div id="results-tabs">
+            </div>
+            <div id="results-container">
+                {% for result in results %}
+                {% set outer_loop = loop %}
+                <table class="result-table" id="result-table{{ loop.index0 }}">
+                    {% for (name, details) in result %}
+                    {% set name_safe = name | replace("'", "") %}
+                    <tr onclick="updateMap(parseFloat('{{ details.lat }}'), parseFloat('{{ details.long }}')); 
                                     toggle('{{loop.index0}}-{{ outer_loop.index0 }}', parseFloat('{{details.lat}}'), parseFloat('{{details.long}}'))"
-                            class="result" id="result{{ loop.index0 }}-{{ outer_loop.index0 }}">
-                            <td>
-                                <div class="result-details">{{ name }}</div>
-                                <div class="result-details ratings">{{ details.rating }}
-                                    <img src="static/images/star.png">
+                        class="result" id="result{{ loop.index0 }}-{{ outer_loop.index0 }}">
+                        <td>
+                            <div class="result-details">{{ name }}</div>
+                            <div class="result-details ratings">{{ details.rating }}
+                                <img src="static/images/star.png">
+                            </div>
+                            <img class="add-toggle" id="toggle{{ loop.index0 }}-{{ outer_loop.index0 }}"
+                                src="static/images/plus.png"
+                                onclick="event.stopPropagation(); toggleMyRoute('{{ loop.index0 }}-{{ outer_loop.index0 }}', parseFloat('{{details.lat}}'), parseFloat('{{details.long}}'), '{{ name_safe }}')">
+                            <div class="detail" id="detail{{ loop.index0 }}-{{ outer_loop.index0 }}">
+                                <div>
+                                    {{ details.address }}
                                 </div>
-                                <img class="add-toggle" id="toggle{{ loop.index0 }}-{{ outer_loop.index0 }}"
-                                    src="static/images/plus.png"
-                                    onclick="event.stopPropagation(); toggleMyRoute('{{ loop.index0 }}-{{ outer_loop.index0 }}', parseFloat('{{details.lat}}'), parseFloat('{{details.long}}'), '{{ name_safe }}')">
-                                <div class="detail" id="detail{{ loop.index0 }}-{{ outer_loop.index0 }}">
-                                    <div>
-                                        {{ details.address }}
-                                    </div>
-                                    <div>
-                                        {{ details.review }}
-                                    </div>
+                                <div>
+                                    {{ details.review }}
                                 </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </table>
+                            </div>
+                        </td>
+                    </tr>
                     {% endfor %}
-                </div>
-            </div>
-            <br>
-            <div id="myroute-container">
-                <h2>Your Route!</h2>
-                <h4>Open a result and click the plus to customize your route.</h4>
-                <table id="myroute">
-                    <tbody></tbody>
                 </table>
+                {% endfor %}
             </div>
-            <br>
-            <button id="reset" class="btn btn-info" onclick="updateMap()"> Reset Map </button>
-
         </div>
-        {% else %}
-            <script>
-                catchBadWaypoints();
-            </script>
-        {% endif %}
+        <br>
+        <div id="myroute-container">
+            <h2>Your Route!</h2>
+            <h4>Open a result and click the plus to customize your route.</h4>
+            <table id="myroute">
+                <tbody></tbody>
+            </table>
+        </div>
+        <br>
+        <button id="reset" class="btn btn-info" onclick="updateMap()"> Reset Map </button>
+
+    </div>
+    {% else %}
+    <script>
+        catchBadWaypoints();
+    </script>
+    {% endif %}
     {% endif %}
     <a href="https://detour-guide-v1.herokuapp.com/">Version 1</a>
     <a href="https://detour-guide-v2.herokuapp.com/">Version 2</a>
 </body>
+
 </html>
