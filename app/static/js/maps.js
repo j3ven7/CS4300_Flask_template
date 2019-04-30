@@ -125,8 +125,8 @@ function updateMap(lat = null, long = null) {
 				document.getElementById("distance").innerHTML = "Total distance: " + (td / 1609.34).toFixed(1) + " miles"
 			}
 			else {
-				document.getElementById("time").innerHTML = "Total time: " + hrs + " hours " + Math.floor(min) + " minutes ( " + changeHrs + " hour " + changeMin + " minute detour )"
-				document.getElementById("distance").innerHTML = "Total distance: " + (td / 1609.34).toFixed(1) + " miles ( " + (changeDist / 1609.34).toFixed(1) + " mile detour )"
+				document.getElementById("time").innerHTML = "Total time: " + hrs + " hours " + Math.floor(min) + " minutes <span>( + " + changeHrs + " hour " + changeMin + " minute detour )</span>";
+				document.getElementById("distance").innerHTML = "Total distance: " + (td / 1609.34).toFixed(1) + " miles <span>( + " + (changeDist / 1609.34).toFixed(1) + " mile detour )</span>"
 			}
 			directionsRenderer.setDirections(response);
 		} else {
