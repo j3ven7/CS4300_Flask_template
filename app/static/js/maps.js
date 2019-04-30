@@ -143,8 +143,8 @@ function addTab(query_i) {
 }
 
 function catchBadWaypoints() {
-	document.getElementById("origin-input").classList.add("bad-location");
-	document.getElementById("destination-input").classList.add("bad-location");
-	document.getElementById("origin-input").placeholder = "Please select a valid origin";
-	document.getElementById("destination-input").placeholder = "Please select a valid destination";
+	$("#confirmation").css("background-color", "#c32f27");
+	$("#confirmation").text("Please enter a valid origin and destination!");
+	$("#confirmation").css("opacity", "1");
+	$("#confirmation").slideDown("fast").delay(5000).slideUp('fast');
 }
