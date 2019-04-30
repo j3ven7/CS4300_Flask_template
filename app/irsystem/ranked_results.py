@@ -24,7 +24,7 @@ def queryToVec(query, model):
     # Just a place holder so we know the length of the embeddings
     rst = 0
     
-    for word in query:
+    for word in query.split():
         try:
             rst += model[word.lower()]
             length += 1
@@ -65,7 +65,7 @@ def computeTopTypes(query, all_types, model):
                     score = 0
                 rst[t] = score
             except:
-                print(t, " was not in the dictionary")
+                pass
         
     return sorted(rst.items(), key=lambda item : item[1], reverse=False)
     
@@ -85,6 +85,8 @@ def computeScore(query, types, model):
     
     # First we convert our query to a vector
     query_vec = queryToVec(query, model)
+    if type(query_vec) == int:
+        return 1
     
     # Now we need to convert our types
     types = types.split(",")
@@ -107,7 +109,8 @@ def computeScore(query, types, model):
                     score = 0
                 final_score += score
             except:
-                print(t, len(t), " was not in the dictionary")             
+                pass
+                             
     return (final_score / length)
 
 def getTopPlacesTypes(places_to_details, query, model):
@@ -340,7 +343,6 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
     Return:
         Dictionary mapping a place to its score 
     """
-    
     seen_review_ids    = set() # Set of each seen id so far
     overlap_ids = set()
     query = query.lower()
@@ -422,7 +424,7 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
                 
     
     final_rst = {} # Mapping of place to final score -- including distance
-    print("places length: ", len(places))
+    #print("places length: ", len(places))
     
     # Right now we just iterate over every place, but I think it would make more sense
     # to look at relevant ones? So check how many we get in place_data and if it has more than say
@@ -503,8 +505,8 @@ def computeScores(waypoints, query, model, index_search_rst_reviews, index_searc
                 rating_score = log10(float(final_rst[k]['rating']))/3
             except:
                 rating_score = 0
-            
-            final_rst[k]['score'] = rating_score + (score / count) + (.1/(types_score + .001)) + name_score + svd_score + review_score
+            types_score = 0 if types_score == 1 else (.1/(types_score + .001))/1000
+            final_rst[k]['score'] = rating_score + (score / count) + types_score + name_score + svd_score + review_score
     return sorted(final_rst.items(), key=lambda kv: kv[1]['score'], reverse=True)
 
     
