@@ -34,10 +34,6 @@ function toggle(element, lat, long) {
         // No new active element - the element clicked is the currently active element
     } else {
         activeRow = "";
-        while (index > -1) {
-            wypts.splice(index, 1);
-            index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
-        }
     }
 }
 
