@@ -31,6 +31,12 @@ html, body {
     }
 }
 
+.centered a {
+    font-size: 9px;
+    padding: 10px;
+    color: gray;
+}
+
 #confirmation {
     position: fixed;
     width: 100%;
@@ -55,6 +61,33 @@ html, body {
     background-attachment: fixed;
     opacity: 0.2;
     z-index: -1;
+}
+
+.map:hover .maptip {
+    display: block;
+}
+
+.maptip {
+    display: none;
+    background: rgb(200, 200, 200, 0.5);
+    margin-left: 28px;
+    padding: 10px;
+    position: absolute;
+    z-index: 1000;
+    width:220px;
+    height:150px;
+}
+
+.map img {
+    height: 100%;
+}
+
+.maptip img {
+    height: 85%;
+}
+
+.map {
+    height: 11px;
 }
 
 .topcorner{
