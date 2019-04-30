@@ -119,7 +119,7 @@
                                 <div class="result-details ratings">{{ details.rating }}
                                     <img src="static/images/star.png">
                                 </div>
-                                <img class="add-toggle " id="toggle{{ loop.index0 }}-{{ outer_loop.index0 }}"
+                                <img class="add-toggle" id="toggle{{ loop.index0 }}-{{ outer_loop.index0 }}"
                                     src="static/images/plus.png" title="Click to add to Your Route."
                                     onclick="event.stopPropagation(); toggleMyRoute('{{ loop.index0 }}-{{ outer_loop.index0 }}', parseFloat('{{details.lat}}'), parseFloat('{{details.long}}'), '{{ name_safe }}')">
                                 <div class="detail" id="detail{{ loop.index0 }}-{{ outer_loop.index0 }}">
