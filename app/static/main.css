@@ -263,8 +263,19 @@ input[type=range]::-webkit-slider-runnable-track {
     width: 3%;
 }
 
-.result-name {
+.result-details {
     font-weight: bold;
+    display: inline-block;
+    padding-right: 5px;
+    font-size: 16px;
+}
+
+.ratings {
+    color: #F56600;
+}
+
+.ratings img {
+    height: 15px;
 }
 
 .result.active {

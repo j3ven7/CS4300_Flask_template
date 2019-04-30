@@ -45,7 +45,6 @@ function toggleMyRoute(element, lat, long, name) {
 
     // Plus sign active
     if ($("#toggle" + element).attr("src") == "static/images/plus.png") {
-        $("#toggle" + element).attr("src", "static/images/minus.png")
         $("#toggle" + element).attr("src", "static/images/minus.png");
         slideDownNotification(name);
         // add waypoint
@@ -53,7 +52,7 @@ function toggleMyRoute(element, lat, long, name) {
         wypt_names.push([name, element]);
     } else {
         $("#toggle" + element).attr("src", "static/images/plus.png")
-        var i = wypt_names.indexOf(name);
+        var i = wypt_names[0].indexOf(name);
         wypts.splice(i, 1);
         wypt_names.splice(i, 1);
         updateMap(lat, long);
