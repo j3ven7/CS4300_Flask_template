@@ -68,11 +68,13 @@ function initMap() {
 	});
 }
 
-function updateMap(lat = null, long = null) {
+function updateMap(lat = null, long = null, refresh=false) {
 	//console.log(wypts);
-	if (lat == null && long == null) {
+	if (lat == null && long == null && !refresh) {
 		// Reset button clicked
 		wypts = [];
+		wypt_names = [];
+    populateMyRoute();
 		$("#result" + activeRow).removeClass("active");
 		$("#detail" + activeRow).css("display", "none");
 		activeRow = "";
@@ -85,7 +87,7 @@ function updateMap(lat = null, long = null) {
 			}
 			var index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
 			// only add to temp if not already in route
-			if (index == -1) {
+			if (index == -1 && !refresh) {
 				temp_wypts.push({
 					location: {
 						lat: lat,

@@ -20,10 +20,6 @@ function toggle(element, lat, long) {
     if (activeRow != element) {
         // Another element is already open
         if (activeRow != "") {
-            while (index > -1) {
-                wypts.splice(index, 1);
-                index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
-            }
             updateMap(lat, long);
         }
         activeRow = element;
@@ -63,6 +59,7 @@ function removeMyRoute(i) {
     wypts.splice(i, 1);
     wypt_names.splice(i, 1);
     populateMyRoute();
+    updateMap(refresh=true);
 }
 
 function slideDownNotification(name = "") {
