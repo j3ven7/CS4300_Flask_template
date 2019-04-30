@@ -82,72 +82,78 @@
         <button type="submit" class="btn btn-info" onclick="submitQuery(event)"> Go! </button>
     </form>
     <div class="centered">
-        {% if results and inputs %}
-        <h1>{{output_message}}</h1>
-        <h3 id="time"></h3>
-        <h3 id="distance"></h3>
-        {% for inp in inputs %}
-        <script>
-            coords.push('{{ inp }}')
-        </script>
-        {% endfor %}
-        <script>
-            queries = '{{ queries }}'
-            dist = '{{ dist }}'
-        </script>
-        <script async defer src="https://maps.googleapis.com/maps/api/js?key={{api_key}}&callback=initMap">
-        </script>
-    </div>
+        {% if inputs %}
+            {% if results %}
+            <h1>{{output_message}}</h1>
+            <h3 id="time"></h3>
+            <h3 id="distance"></h3>
+            {% for inp in inputs %}
+            <script>
+                coords.push('{{ inp }}')
+            </script>
+            {% endfor %}
+            <script>
+                queries = '{{ queries }}'
+                dist = '{{ dist }}'
+            </script>
+            <script async defer src="https://maps.googleapis.com/maps/api/js?key={{api_key}}&callback=initMap">
+            </script>
+        </div>
 
-    <div class="container">
-        <div id="map"></div>
-        <div id="show-results">
-            <div id="results-tabs">
-            </div>
-            <div id="results-container">
-                {% for result in results %}
-                {% set outer_loop = loop %}
-                <table class="result-table" id="result-table{{ loop.index0 }}">
-                    {% for (name, details) in result %}
-                    {% set name_safe = name | replace("'", "") %}
-                    <tr onclick="updateMap(parseFloat('{{ details.lat }}'), parseFloat('{{ details.long }}')); 
-                                toggle('{{loop.index0}}-{{ outer_loop.index0 }}', parseFloat('{{details.lat}}'), parseFloat('{{details.long}}'))"
-                        class="result" id="result{{ loop.index0 }}-{{ outer_loop.index0 }}">
-                        <td>
-                            <div class="result-details">{{ name }}</div>
-                            <div class="result-details ratings">{{ details.rating }}
-                                <img src="static/images/star.png">
-                            </div>
-                            <img class="add-toggle " id="toggle{{ loop.index0 }}-{{ outer_loop.index0 }}"
-                                src="static/images/plus.png" title="Click to add to Your Route."
-                                onclick="event.stopPropagation(); toggleMyRoute('{{ loop.index0 }}-{{ outer_loop.index0 }}', parseFloat('{{details.lat}}'), parseFloat('{{details.long}}'), '{{ name_safe }}')">
-                            <div class="detail" id="detail{{ loop.index0 }}-{{ outer_loop.index0 }}">
-                                <div>
-                                    {{ details.address }}
+        <div class="container">
+            <div id="map"></div>
+            <div id="show-results">
+                <div id="results-tabs">
+                </div>
+                <div id="results-container">
+                    {% for result in results %}
+                    {% set outer_loop = loop %}
+                    <table class="result-table" id="result-table{{ loop.index0 }}">
+                        {% for (name, details) in result %}
+                        {% set name_safe = name | replace("'", "") %}
+                        <tr onclick="updateMap(parseFloat('{{ details.lat }}'), parseFloat('{{ details.long }}')); 
+                                    toggle('{{loop.index0}}-{{ outer_loop.index0 }}', parseFloat('{{details.lat}}'), parseFloat('{{details.long}}'))"
+                            class="result" id="result{{ loop.index0 }}-{{ outer_loop.index0 }}">
+                            <td>
+                                <div class="result-details">{{ name }}</div>
+                                <div class="result-details ratings">{{ details.rating }}
+                                    <img src="static/images/star.png">
                                 </div>
-                                <div>
-                                    {{ details.review }}
+                                <img class="add-toggle " id="toggle{{ loop.index0 }}-{{ outer_loop.index0 }}"
+                                    src="static/images/plus.png" title="Click to add to Your Route."
+                                    onclick="event.stopPropagation(); toggleMyRoute('{{ loop.index0 }}-{{ outer_loop.index0 }}', parseFloat('{{details.lat}}'), parseFloat('{{details.long}}'), '{{ name_safe }}')">
+                                <div class="detail" id="detail{{ loop.index0 }}-{{ outer_loop.index0 }}">
+                                    <div>
+                                        {{ details.address }}
+                                    </div>
+                                    <div>
+                                        {{ details.review }}
+                                    </div>
                                 </div>
-                            </div>
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
                     {% endfor %}
-                </table>
-                {% endfor %}
+                </div>
             </div>
-        </div>
-        <br>
-        <div id="myroute-container">
-            <h2>Your Route!</h2>
-            <h4>Open a result and click the plus to customize your route.</h4>
-            <table id="myroute">
-                <tbody></tbody>
-            </table>
-        </div>
-        <br>
-        <button id="reset" class="btn btn-info" onclick="updateMap()"> Reset Map </button>
+            <br>
+            <div id="myroute-container">
+                <h2>Your Route!</h2>
+                <h4>Open a result and click the plus to customize your route.</h4>
+                <table id="myroute">
+                    <tbody></tbody>
+                </table>
+            </div>
+            <br>
+            <button id="reset" class="btn btn-info" onclick="updateMap()"> Reset Map </button>
 
-    </div>
+        </div>
+        {% else %}
+            <script>
+                catchBadWaypoints();
+            </script>
+        {% endif %}
     {% endif %}
 </body>
 

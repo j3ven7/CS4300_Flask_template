@@ -139,3 +139,10 @@ function addTab(query_i) {
 	var new_tab = "<div class='tab' id='query-tab" + query_i + "' onclick='toggleQueryTab(" + query_i + ")'><p>" + queries[query_i] + "</p></div>";
 	document.getElementById("results-tabs").innerHTML += new_tab;
 }
+
+function catchBadWaypoints() {
+	document.getElementById("origin-input").classList.add("bad-location");
+	document.getElementById("destination-input").classList.add("bad-location");
+	document.getElementById("origin-input").placeholder = "Please select a valid origin";
+	document.getElementById("destination-input").placeholder = "Please select a valid destination";
+}

@@ -67,7 +67,10 @@ def search():
 		print("getting results")
 		with open("./app/irsystem/pickled_data_v2","rb") as f:
 			inv_idx_reviews,idf_reviews,doc_norms_reviews,inv_idx_types,idf_types,doc_norms_types, review_to_places, places_to_details = pickle.load(f)
-		waypoints = rr.generateWaypoints(origin, destination)
+		try :
+			waypoints = rr.generateWaypoints(origin, destination)
+		except:
+			return render_template('search.html', netid=net_id, output_message=output_message, inputs=inputs, queries=request.args.get('description'), dist=request.args.get('distance'), results=[], api_key=API_KEY)
 		results = []
 		punc = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
 		stemmer = PorterStemmer()

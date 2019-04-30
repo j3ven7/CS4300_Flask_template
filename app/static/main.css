@@ -72,6 +72,15 @@ html, body {
     background-color: #F56600;
 }
 
+.bad-location {
+    background-color: rgb(177, 35, 0);
+    color: white; 
+}
+
+.bad-location::placeholder {
+    color: white !important;
+}
+
 #origin-input,
 #destination-input,
 #description-input,
