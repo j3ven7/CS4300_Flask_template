@@ -42,23 +42,25 @@ function toggleMyRoute(element, lat, long, name) {
 
     // Plus sign active
     if ($("#toggle" + element).attr("src") == "static/images/plus.png") {
-        $("#toggle" + element).attr("src", "static/images/minus.png");
+        //$("#toggle" + element).attr("src", "static/images/minus.png");
+        $("#toggle" + element).attr("src", "");
         slideDownNotification(name);
         // add waypoint
         wypts.push({ location: { lat: lat, lng: long }, stopover: true });
         wypt_names.push([name, element]);
-    } else {
-        $("#toggle" + element).attr("src", "static/images/plus.png")
-        var idx = 0;
-        while (idx < wypt_names.length && $.inArray(element, wypt_names[idx]) == -1) { // while element not found
-            idx++;
-        }
-
-        var i = (idx < wypt_names.length) ? idx : -1; //wypt_names.indexOf(name);
-        wypts.splice(i, 1);
-        wypt_names.splice(i, 1);
-        updateMap(lat, long);
     }
+    // } else {
+    //     $("#toggle" + element).attr("src", "static/images/plus.png")
+    //     var idx = 0;
+    //     while (idx < wypt_names.length && $.inArray(element, wypt_names[idx]) == -1) { // while element not found
+    //         idx++;
+    //     }
+
+    //     var i = (idx < wypt_names.length) ? idx : -1; //wypt_names.indexOf(name);
+    //     wypts.splice(i, 1);
+    //     wypt_names.splice(i, 1);
+    //     updateMap(lat, long);
+    // }
     populateMyRoute();
 }
 
