@@ -167,8 +167,13 @@ input[type=range]::-webkit-slider-runnable-track {
     width: 100%;
     height: 15px;
     cursor: pointer;
-    background: rgba(0, 25, 138, 0.3);
+    background: rgba(0, 25, 138, 0.1);
     border-radius: 40px;
+}
+
+#time span,
+#distance span {
+    color: #F56600;
 }
 
 #distanceText {
