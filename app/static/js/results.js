@@ -18,6 +18,7 @@ function toggle(element, lat, long) {
     // If the element is a new element
     var index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
     if (activeRow != element) {
+        // Another element is already open
         if (activeRow != "") {
             while (index > -1) {
                 wypts.splice(index, 1);
@@ -31,9 +32,10 @@ function toggle(element, lat, long) {
         $("#toggle" + activeRow).css("visibility", "visible");
         // document.getElementById("result" + activeRow).scrollIntoView();
 
-        // No new active element - the element clicked is the currently active element
+    // No new active element - the element clicked is the currently active element - closing element
     } else {
         activeRow = "";
+        console.log(index);
         while (index > -1) {
             wypts.splice(index, 1);
             index = wypts.map(function (x) { return x.location.lat; }).indexOf(lat);
@@ -53,7 +55,7 @@ function toggleMyRoute(element, lat, long, name) {
     } else {
         $("#toggle" + element).attr("src", "static/images/plus.png")
         var idx = 0;
-        while (idx < wypt_names.length && $.inArray(name, wypt_names[idx]) == -1) { // while name not found
+        while (idx < wypt_names.length && $.inArray(element, wypt_names[idx]) == -1) { // while element not found
             idx++;
         }
 
